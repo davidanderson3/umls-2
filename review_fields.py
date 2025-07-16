@@ -2,6 +2,7 @@ import os
 import csv
 import json
 import re
+from flask import Flask, render_template_string, request
 
 SQL_FILE = os.path.join('load_scripts', 'mysql_tables.sql')
 RRF_FILES = [
@@ -60,37 +61,85 @@ def sample_rows(file_path, num=5):
     return samples
 
 
-def review_file(rrf_file, columns):
-    print(f"\nReviewing {rrf_file}")
-    sample = sample_rows(rrf_file, num=3)
-    results = {}
-    for idx, col in enumerate(columns):
-        examples = [row[idx] if idx < len(row) else '' for row in sample]
-        print(f"\nColumn: {col}")
-        if examples:
-            for ex in examples:
-                print(f"  example: {ex}")
-        else:
-            print("  (no examples found)")
-        ans = input("Mark for deletion? [y/N]: ").strip().lower()
-        results[col] = ans == 'y'
-    return results
+MAX_EXAMPLES = 3
+
+
+def load_previous():
+    if os.path.isfile(OUTPUT_FILE):
+        with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return {}
+
+
+tables = parse_table_columns(SQL_FILE)
+tables_by_rrf = {rrf: tables.get(rrf.split('.')[0], []) for rrf in RRF_FILES}
+samples = {rrf: sample_rows(rrf, num=MAX_EXAMPLES) for rrf in RRF_FILES}
+selections = load_previous()
+
+app = Flask(__name__)
+
+TEMPLATE = """<!doctype html>
+<html>
+<head><title>Review Fields</title></head>
+<body>
+  <h1>Review Fields</h1>
+  {% if message %}<p style='color: green;'>{{ message }}</p>{% endif %}
+  <form method='post'>
+    {% for rrf, cols in tables.items() %}
+      <h2>{{ rrf }}</h2>
+      <table border='1'>
+        <tr>
+          <th>Delete</th>
+          <th>Column</th>
+          {% for i in range(max_examples) %}
+            <th>Example {{ i + 1 }}</th>
+          {% endfor %}
+        </tr>
+        {% for idx, col in enumerate(cols) %}
+        <tr>
+          <td><input type='checkbox' name='{{ rrf }}::{{ col }}' {% if selections.get(rrf, {}).get(col) %}checked{% endif %}></td>
+          <td>{{ col }}</td>
+          {% for row in samples[rrf] %}
+            <td>{{ row[idx] if idx < row|length else '' }}</td>
+          {% endfor %}
+          {% for _ in range(max_examples - samples[rrf]|length) %}<td></td>{% endfor %}
+        </tr>
+        {% endfor %}
+      </table>
+    {% endfor %}
+    <button type='submit'>Save choices</button>
+  </form>
+</body>
+</html>"""
+
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    message = ''
+    if request.method == 'POST':
+        new_sel = {}
+        for rrf, cols in tables_by_rrf.items():
+            res = {}
+            for col in cols:
+                key = f"{rrf}::{col}"
+                res[col] = key in request.form
+            new_sel[rrf] = res
+        with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+            json.dump(new_sel, f, indent=2)
+        selections.update(new_sel)
+        message = 'Selections saved.'
+    return render_template_string(
+        TEMPLATE,
+        tables=tables_by_rrf,
+        samples=samples,
+        selections=selections,
+        max_examples=MAX_EXAMPLES,
+        message=message,
+    )
 
 
 def main():
-    tables = parse_table_columns(SQL_FILE)
-    all_results = {}
-    for rrf in RRF_FILES:
-        table = rrf.split('.')[0]
-        cols = tables.get(table)
-        if not cols:
-            print(f"Warning: table definition for {table} not found.")
-            continue
-        res = review_file(rrf, cols)
-        all_results[rrf] = res
-    with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-        json.dump(all_results, f, indent=2)
-    print(f"\nResults saved to {OUTPUT_FILE}")
+    app.run(debug=True)
 
 
 if __name__ == '__main__':
