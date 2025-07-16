@@ -38,7 +38,7 @@ echo "db_name =    $db_name" >> mysql.log 2>&1
 
 
 echo "    Create and load tables ... `/bin/date`" >> mysql.log 2>&1
-$MYSQL_HOME/bin/mysql -vvv -u $user -p$password $db_name < mysql_tables.sql >> mysql.log 2>&1
+$MYSQL_HOME/bin/mysql --local-infile=1 -vvv -u $user -p$password $db_name < mysql_tables.sql >> mysql.log 2>&1
 if [ $? -ne 0 ]; then ef=1; fi
 
 echo "finished loading tables ... `/bin/date`" >> mysql.log 2>&1
@@ -46,7 +46,7 @@ echo "finished loading tables ... `/bin/date`" >> mysql.log 2>&1
 if [ $ef -ne 1 ]
 then
 echo "    Create indexes ... `/bin/date`" >> mysql.log 2>&1
-$MYSQL_HOME/bin/mysql -vvv -u $user -p$password $db_name < mysql_indexes.sql >> mysql.log 2>&1
+$MYSQL_HOME/bin/mysql --local-infile=1 -vvv -u $user -p$password $db_name < mysql_indexes.sql >> mysql.log 2>&1
 if [ $? -ne 0 ]; then ef=1; fi
 fi
 

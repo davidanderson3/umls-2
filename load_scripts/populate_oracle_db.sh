@@ -13,8 +13,11 @@ export ORACLE_HOME
 user=username
 password=password
 tns_name=tns_name
-NLS_LANG=AMERICAN_AMERICA.UTF8
+# Default to AL32UTF8 for modern Oracle versions while allowing override
+: "${NLS_LANG:=AMERICAN_AMERICA.AL32UTF8}"
 export NLS_LANG
+# Character set used by SQL*Loader control files
+: "${ORA_CHARSET:=AL32UTF8}"
 
 /bin/rm -f oracle.log
 mkdir -p tmp_ctl
@@ -38,7 +41,7 @@ load_table() {
   cat > tmp_ctl/$table.ctl <<CTL
 options (direct=true)
 load data
-characterset UTF8 length semantics char
+characterset $ORA_CHARSET length semantics char
 infile '$table.RRF'
 badfile '$table.bad'
 discardfile '$table.dsc'
