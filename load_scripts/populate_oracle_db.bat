@@ -14,7 +14,7 @@ set ORACLE_HOME=<path to ORACLE_HOME>
 set user=<username>
 set password=<password>
 set tns_name=<tns_name>
-set NLS_LANG=AMERICAN_AMERICA.UTF8
+if not defined NLS_LANG set NLS_LANG=AMERICAN_AMERICA.AL32UTF8
 
 del oracle.log
 echo. > oracle.log
