@@ -95,7 +95,8 @@ TEMPLATE = """<!doctype html>
             <th>Example {{ i + 1 }}</th>
           {% endfor %}
         </tr>
-        {% for idx, col in enumerate(cols) %}
+        {% for col in cols %}
+        {% set idx = loop.index0 %}
         <tr>
           <td><input type='checkbox' name='{{ rrf }}::{{ col }}' {% if selections.get(rrf, {}).get(col) %}checked{% endif %}></td>
           <td>{{ col }}</td>
