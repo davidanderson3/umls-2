@@ -34,11 +34,8 @@ echo MYSQL_HOME = %MYSQL_HOME% >> mysql.log 2>&1
 echo user =       %user% >> mysql.log 2>&1
 echo db_name =    %db_name% >> mysql.log 2>&1
 set error=0
-set mrcxt_flag=0
 
 :: Create empty mrcxt if it doesn't exist, expected by mysql_tables.sql script
-if not exist MRCXT.RRF set mrcxt_flag=1
-if not exist MRCXT.RRF TYPE NUL > MRCXT.RRF
 
 echo     Create and load tables >> mysql.log 2>&1
 %MYSQL_HOME%\bin\mysql -vvv -u %user% -p%password% --local-infile=1 %db_name%  < mysql_tables.sql >> mysql.log 2>&1
@@ -49,13 +46,6 @@ echo     Create indexes >> mysql.log 2>&1
 %MYSQL_HOME%\bin\mysql -vvv -u %user% -p%password% --local-infile=1 %db_name% < mysql_indexes.sql >> mysql.log 2>&1
 IF %ERRORLEVEL% NEQ 0 (set error=1
 
-IF %mrcxt_flag% EQU 1 (
-del MRCXT.RRF
-echo DROP TABLE IF EXISTS MRCXT; >> drop_mrcxt.sql
-%MYSQL_HOME%\bin\mysql -vvv -u %user% -p%password% --local-infile=1 %db_name% < drop_mrcxt.sql >> mysql.log 2>&1
-IF %ERRORLEVEL% NEQ 0 (set error=1
-del drop_mrcxt.sql
-)
 
 :trailer
 echo ---------------------------------------- >> mysql.log 2>&1
