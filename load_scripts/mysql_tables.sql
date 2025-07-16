@@ -87,6 +87,42 @@ MAPREASON = NULLIF(@mapreason,''),
 CUI2 = NULLIF(@cui2,''),
 MAPIN = NULLIF(@mapin,'');
 
+DROP TABLE IF EXISTS MRCXT;
+CREATE TABLE MRCXT (
+    CUI	char(8),
+    SUI	varchar(10),
+    AUI	varchar(9),
+    SAB	varchar(40),
+    CODE	varchar(100),
+    CXN	int unsigned,
+    CXL	char(3),
+    MRCXTRANK	int unsigned,
+    CXS	text,
+    CUI2	char(8),
+    AUI2	varchar(9),
+    HCD	varchar(100),
+    RELA	varchar(100),
+    XC	varchar(1),
+    CVF	int unsigned
+) CHARACTER SET utf8;
+
+load data local infile 'MRCXT.RRF' into table MRCXT fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@cui,@sui,@aui,@sab,@code,@cxn,@cxl,@mrcxtrank,@cxs,@cui2,@aui2,@hcd,@rela,@xc,@cvf)
+SET CUI = NULLIF(@cui,''),
+SUI = NULLIF(@sui,''),
+AUI = NULLIF(@aui,''),
+SAB = NULLIF(@sab,''),
+CODE = NULLIF(@code,''),
+CXN = NULLIF(@cxn,''),
+CXL = NULLIF(@cxl,''),
+MRCXTRANK = NULLIF(@mrcxtrank,''),
+CXS = NULLIF(@cxs,''),
+CUI2 = NULLIF(@cui2,''),
+AUI2 = NULLIF(@aui2,''),
+HCD = NULLIF(@hcd,''),
+RELA = NULLIF(@rela,''),
+XC = NULLIF(@xc,''),
+CVF = NULLIF(@cvf,'');
 
 DROP TABLE IF EXISTS MRDEF;
 CREATE TABLE MRDEF (
@@ -168,6 +204,90 @@ SAB = @sab,
 RELA = NULLIF(@rela,''),
 PTR = NULLIF(@ptr,''),
 HCD = NULLIF(@hcd,''),
+CVF = NULLIF(@cvf,'');
+
+DROP TABLE IF EXISTS MRHIST;
+CREATE TABLE MRHIST (
+    CUI	char(8),
+    SOURCEUI	varchar(100),
+    SAB	varchar(40),
+    SVER	varchar(40),
+    CHANGETYPE	text,
+    CHANGEKEY	text,
+    CHANGEVAL	text,
+    REASON	text,
+    CVF	int unsigned
+) CHARACTER SET utf8;
+
+load data local infile 'MRHIST.RRF' into table MRHIST fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@cui,@sourceui,@sab,@sver,@changetype,@changekey,@changeval,@reason,@cvf)
+SET CUI = NULLIF(@cui,''),
+SOURCEUI = NULLIF(@sourceui,''),
+SAB = NULLIF(@sab,''),
+SVER = NULLIF(@sver,''),
+CHANGETYPE = NULLIF(@changetype,''),
+CHANGEKEY = NULLIF(@changekey,''),
+CHANGEVAL = NULLIF(@changeval,''),
+REASON = NULLIF(@reason,''),
+CVF = NULLIF(@cvf,'');
+
+DROP TABLE IF EXISTS MRMAP;
+CREATE TABLE MRMAP (
+    MAPSETCUI	char(8) NOT NULL,
+    MAPSETSAB	varchar(40) NOT NULL,
+    MAPSUBSETID	varchar(10),
+    MAPRANK	int unsigned,
+    MAPID	varchar(50) NOT NULL,
+    MAPSID	varchar(50),
+    FROMID	varchar(50) NOT NULL,
+    FROMSID	varchar(50),
+    FROMEXPR	text NOT NULL,
+    FROMTYPE	varchar(50) NOT NULL,
+    FROMRULE	text,
+    FROMRES	text,
+    REL	varchar(4) NOT NULL,
+    RELA	varchar(100),
+    TOID	varchar(50),
+    TOSID	varchar(50),
+    TOEXPR	text,
+    TOTYPE	varchar(50),
+    TORULE	text,
+    TORES	text,
+    MAPRULE	text,
+    MAPRES	text,
+    MAPTYPE	varchar(50),
+    MAPATN	varchar(100),
+    MAPATV	text,
+    CVF	int unsigned
+) CHARACTER SET utf8;
+
+load data local infile 'MRMAP.RRF' into table MRMAP fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@mapsetcui,@mapsetsab,@mapsubsetid,@maprank,@mapid,@mapsid,@fromid,@fromsid,@fromexpr,@fromtype,@fromrule,@fromres,@rel,@rela,@toid,@tosid,@toexpr,@totype,@torule,@tores,@maprule,@mapres,@maptype,@mapatn,@mapatv,@cvf)
+SET MAPSETCUI = @mapsetcui,
+MAPSETSAB = @mapsetsab,
+MAPSUBSETID = NULLIF(@mapsubsetid,''),
+MAPRANK = NULLIF(@maprank,''),
+MAPID = @mapid,
+MAPSID = NULLIF(@mapsid,''),
+FROMID = @fromid,
+FROMSID = NULLIF(@fromsid,''),
+FROMEXPR = @fromexpr,
+FROMTYPE = @fromtype,
+FROMRULE = NULLIF(@fromrule,''),
+FROMRES = NULLIF(@fromres,''),
+REL = @rel,
+RELA = NULLIF(@rela,''),
+TOID = @toid,
+TOSID = NULLIF(@tosid,''),
+TOEXPR = @toexpr,
+TOTYPE = @totype,
+TORULE = NULLIF(@torule,''),
+TORES = NULLIF(@tores,''),
+MAPRULE = NULLIF(@maprule,''),
+MAPRES = NULLIF(@mapres,''),
+MAPTYPE = @maptype,
+MAPATN = NULLIF(@mapatn,''),
+MAPATV = NULLIF(@mapatv,''),
 CVF = NULLIF(@cvf,'');
 
 DROP TABLE IF EXISTS MRRANK;
@@ -314,6 +434,34 @@ ATV = @atv,
 SUPPRESS = @suppress,
 CVF = NULLIF(@cvf,'');
 
+DROP TABLE IF EXISTS MRSMAP;
+CREATE TABLE MRSMAP (
+    MAPSETCUI	char(8) NOT NULL,
+    MAPSETSAB	varchar(40) NOT NULL,
+    MAPID	varchar(50) NOT NULL,
+    MAPSID	varchar(50),
+    FROMEXPR	text NOT NULL,
+    FROMTYPE	varchar(50) NOT NULL,
+    REL	varchar(4) NOT NULL,
+    RELA	varchar(100),
+    TOEXPR	text,
+    TOTYPE	varchar(50),
+    CVF	int unsigned
+) CHARACTER SET utf8;
+
+load data local infile 'MRSMAP.RRF' into table MRSMAP fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@mapsetcui,@mapsetsab,@mapid,@mapsid,@fromexpr,@fromtype,@rel,@rela,@toexpr,@totype,@cvf)
+SET MAPSETCUI = @mapsetcui,
+MAPSETSAB = @mapsetsab,
+MAPID = @mapid,
+MAPSID = NULLIF(@mapsid,''),
+FROMEXPR = @fromexpr,
+FROMTYPE = @fromtype,
+REL = @rel,
+RELA = NULLIF(@rela,''),
+TOEXPR = @toexpr,
+TOTYPE = @totype,
+CVF = NULLIF(@cvf,'');
 
 DROP TABLE IF EXISTS MRSTY;
 CREATE TABLE MRSTY (
@@ -392,4 +540,508 @@ MAPREASON = @mapreason,
 AUI2 = @aui2,
 CUI2 = @cui2,
 MAPIN = @mapin;
+
+DROP TABLE IF EXISTS MRXW_BAQ;
+CREATE TABLE MRXW_BAQ (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_BAQ.RRF' into table MRXW_BAQ fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = @lat,
+WD = @wd,
+CUI = @cui,
+LUI = @lui,
+SUI = @sui;
+
+DROP TABLE IF EXISTS MRXW_CHI;
+CREATE TABLE MRXW_CHI (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_CHI.RRF' into table MRXW_CHI fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = NULLIF(@lat,''),
+WD = NULLIF(@wd,''),
+CUI = NULLIF(@cui,''),
+LUI = NULLIF(@lui,''),
+SUI = NULLIF(@sui,'');
+
+DROP TABLE IF EXISTS MRXW_CZE;
+CREATE TABLE MRXW_CZE (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_CZE.RRF' into table MRXW_CZE fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = NULLIF(@lat,''),
+WD = NULLIF(@wd,''),
+CUI = NULLIF(@cui,''),
+LUI = NULLIF(@lui,''),
+SUI = NULLIF(@sui,'');
+
+DROP TABLE IF EXISTS MRXW_DAN;
+CREATE TABLE MRXW_DAN (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_DAN.RRF' into table MRXW_DAN fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = @lat,
+WD = @wd,
+CUI = @cui,
+LUI = @lui,
+SUI = @sui;
+
+DROP TABLE IF EXISTS MRXW_DUT;
+CREATE TABLE MRXW_DUT (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_DUT.RRF' into table MRXW_DUT fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = @lat,
+WD = @wd,
+CUI = @cui,
+LUI = @lui,
+SUI = @sui;
+
+DROP TABLE IF EXISTS MRXW_ENG;
+CREATE TABLE MRXW_ENG (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_ENG.RRF' into table MRXW_ENG fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = @lat,
+WD = @wd,
+CUI = @cui,
+LUI = @lui,
+SUI = @sui;
+
+DROP TABLE IF EXISTS MRXW_EST;
+CREATE TABLE MRXW_EST (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_EST.RRF' into table MRXW_EST fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = NULLIF(@lat,''),
+WD = NULLIF(@wd,''),
+CUI = NULLIF(@cui,''),
+LUI = NULLIF(@lui,''),
+SUI = NULLIF(@sui,'');
+
+DROP TABLE IF EXISTS MRXW_FIN;
+CREATE TABLE MRXW_FIN (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_FIN.RRF' into table MRXW_FIN fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = @lat,
+WD = @wd,
+CUI = @cui,
+LUI = @lui,
+SUI = @sui;
+
+DROP TABLE IF EXISTS MRXW_FRE;
+CREATE TABLE MRXW_FRE (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_FRE.RRF' into table MRXW_FRE fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = @lat,
+WD = @wd,
+CUI = @cui,
+LUI = @lui,
+SUI = @sui;
+
+DROP TABLE IF EXISTS MRXW_GER;
+CREATE TABLE MRXW_GER (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_GER.RRF' into table MRXW_GER fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = @lat,
+WD = @wd,
+CUI = @cui,
+LUI = @lui,
+SUI = @sui;
+
+DROP TABLE IF EXISTS MRXW_GRE;
+CREATE TABLE MRXW_GRE (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_GRE.RRF' into table MRXW_GRE fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = NULLIF(@lat,''),
+WD = NULLIF(@wd,''),
+CUI = NULLIF(@cui,''),
+LUI = NULLIF(@lui,''),
+SUI = NULLIF(@sui,'');
+
+DROP TABLE IF EXISTS MRXW_HEB;
+CREATE TABLE MRXW_HEB (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_HEB.RRF' into table MRXW_HEB fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = @lat,
+WD = @wd,
+CUI = @cui,
+LUI = @lui,
+SUI = @sui;
+
+DROP TABLE IF EXISTS MRXW_HUN;
+CREATE TABLE MRXW_HUN (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_HUN.RRF' into table MRXW_HUN fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = @lat,
+WD = @wd,
+CUI = @cui,
+LUI = @lui,
+SUI = @sui;
+
+DROP TABLE IF EXISTS MRXW_ITA;
+CREATE TABLE MRXW_ITA (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_ITA.RRF' into table MRXW_ITA fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = @lat,
+WD = @wd,
+CUI = @cui,
+LUI = @lui,
+SUI = @sui;
+
+DROP TABLE IF EXISTS MRXW_JPN;
+CREATE TABLE MRXW_JPN (
+    LAT char(3) NOT NULL,
+    WD  varchar(500) NOT NULL,
+    CUI char(8) NOT NULL,
+    LUI varchar(10) NOT NULL,
+    SUI varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_JPN.RRF' into table MRXW_JPN fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = NULLIF(@lat,''),
+WD = NULLIF(@wd,''),
+CUI = NULLIF(@cui,''),
+LUI = NULLIF(@lui,''),
+SUI = NULLIF(@sui,'');
+
+DROP TABLE IF EXISTS MRXW_KOR;
+CREATE TABLE MRXW_KOR (
+    LAT char(3) NOT NULL,
+    WD  varchar(500) NOT NULL,
+    CUI char(8) NOT NULL,
+    LUI varchar(10) NOT NULL,
+    SUI varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_KOR.RRF' into table MRXW_KOR fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = NULLIF(@lat,''),
+WD = NULLIF(@wd,''),
+CUI = NULLIF(@cui,''),
+LUI = NULLIF(@lui,''),
+SUI = NULLIF(@sui,'');
+
+DROP TABLE IF EXISTS MRXW_LAV;
+CREATE TABLE MRXW_LAV (
+    LAT char(3) NOT NULL,
+    WD  varchar(200) NOT NULL,
+    CUI char(8) NOT NULL,
+    LUI varchar(10) NOT NULL,
+    SUI varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_LAV.RRF' into table MRXW_LAV fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = NULLIF(@lat,''),
+WD = NULLIF(@wd,''),
+CUI = NULLIF(@cui,''),
+LUI = NULLIF(@lui,''),
+SUI = NULLIF(@sui,'');
+
+DROP TABLE IF EXISTS MRXW_NOR;
+CREATE TABLE MRXW_NOR (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_NOR.RRF' into table MRXW_NOR fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = @lat,
+WD = @wd,
+CUI = @cui,
+LUI = @lui,
+SUI = @sui;
+
+DROP TABLE IF EXISTS MRXW_POL;
+CREATE TABLE MRXW_POL (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_POL.RRF' into table MRXW_POL fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = @lat,
+WD = @wd,
+CUI = @cui,
+LUI = @lui,
+SUI = @sui;
+
+DROP TABLE IF EXISTS MRXW_POR;
+CREATE TABLE MRXW_POR (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_POR.RRF' into table MRXW_POR fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = @lat,
+WD = @wd,
+CUI = @cui,
+LUI = @lui,
+SUI = @sui;
+
+DROP TABLE IF EXISTS MRXW_RUS;
+CREATE TABLE MRXW_RUS (
+    LAT char(3) NOT NULL,
+    WD  varchar(200) NOT NULL,
+    CUI char(8) NOT NULL,
+    LUI varchar(10) NOT NULL,
+    SUI varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_RUS.RRF' into table MRXW_RUS fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = NULLIF(@lat,''),
+WD = NULLIF(@wd,''),
+CUI = NULLIF(@cui,''),
+LUI = NULLIF(@lui,''),
+SUI = NULLIF(@sui,'');
+
+DROP TABLE IF EXISTS MRXW_SCR;
+CREATE TABLE MRXW_SCR (
+    LAT char(3) NOT NULL,
+    WD  varchar(200) NOT NULL,
+    CUI char(8) NOT NULL,
+    LUI varchar(10) NOT NULL,
+    SUI varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_SCR.RRF' into table MRXW_SCR fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = NULLIF(@lat,''),
+WD = NULLIF(@wd,''),
+CUI = NULLIF(@cui,''),
+LUI = NULLIF(@lui,''),
+SUI = NULLIF(@sui,'');
+
+DROP TABLE IF EXISTS MRXW_SPA;
+CREATE TABLE MRXW_SPA (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_SPA.RRF' into table MRXW_SPA fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = @lat,
+WD = @wd,
+CUI = @cui,
+LUI = @lui,
+SUI = @sui;
+
+DROP TABLE IF EXISTS MRXW_SWE;
+CREATE TABLE MRXW_SWE (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_SWE.RRF' into table MRXW_SWE fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = @lat,
+WD = @wd,
+CUI = @cui,
+LUI = @lui,
+SUI = @sui;
+
+DROP TABLE IF EXISTS MRXW_TUR;
+CREATE TABLE MRXW_TUR (
+    LAT	char(3) NOT NULL,
+    WD	varchar(200) NOT NULL,
+    CUI	char(8) NOT NULL,
+    LUI	varchar(10) NOT NULL,
+    SUI	varchar(10) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'MRXW_TUR.RRF' into table MRXW_TUR fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lat,@wd,@cui,@lui,@sui)
+SET LAT = NULLIF(@lat,''),
+WD = NULLIF(@wd,''),
+CUI = NULLIF(@cui,''),
+LUI = NULLIF(@lui,''),
+SUI = NULLIF(@sui,'');
+
+DROP TABLE IF EXISTS AMBIGSUI;
+CREATE TABLE AMBIGSUI (
+    SUI	varchar(10) NOT NULL,
+    CUI	char(8) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'AMBIGSUI.RRF' into table AMBIGSUI fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@sui,@cui)
+SET SUI = @sui,
+CUI = @cui;
+
+DROP TABLE IF EXISTS AMBIGLUI;
+CREATE TABLE AMBIGLUI (
+    LUI	varchar(10) NOT NULL,
+    CUI	char(8) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'AMBIGLUI.RRF' into table AMBIGLUI fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@lui,@cui)
+SET LUI = @lui,
+CUI = @cui;
+
+DROP TABLE IF EXISTS DELETEDCUI;
+CREATE TABLE DELETEDCUI (
+    PCUI	char(8) NOT NULL,
+    PSTR	text NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'CHANGE/DELETEDCUI.RRF' into table DELETEDCUI fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@pcui,@pstr)
+SET PCUI = @pcui,
+PSTR = @pstr;
+
+DROP TABLE IF EXISTS DELETEDLUI;
+CREATE TABLE DELETEDLUI (
+    PLUI	varchar(10) NOT NULL,
+    PSTR	text NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'CHANGE/DELETEDLUI.RRF' into table DELETEDLUI fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@plui,@pstr)
+SET PLUI = @plui,
+PSTR = @pstr;
+
+DROP TABLE IF EXISTS DELETEDSUI;
+CREATE TABLE DELETEDSUI (
+    PSUI	varchar(10) NOT NULL,
+    LAT	char(3) NOT NULL,
+    PSTR	text NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'CHANGE/DELETEDSUI.RRF' into table DELETEDSUI fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@psui,@lat,@pstr)
+SET PSUI = @psui,
+LAT = @lat,
+PSTR = @pstr;
+
+DROP TABLE IF EXISTS MERGEDCUI;
+CREATE TABLE MERGEDCUI (
+    PCUI	char(8) NOT NULL,
+    CUI	char(8) NOT NULL
+) CHARACTER SET utf8;
+
+load data local infile 'CHANGE/MERGEDCUI.RRF' into table MERGEDCUI fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@pcui,@cui)
+SET PCUI = @pcui,
+CUI = @cui;
+
+DROP TABLE IF EXISTS MERGEDLUI;
+CREATE TABLE MERGEDLUI (
+    PLUI	varchar(10),
+    LUI	varchar(10)
+) CHARACTER SET utf8;
+
+load data local infile 'CHANGE/MERGEDLUI.RRF' into table MERGEDLUI fields terminated by '|' ESCAPED BY '' lines terminated by @LINE_TERMINATION@
+(@plui,@lui)
+SET PLUI = NULLIF(@plui,''),
+LUI = NULLIF(@lui,'');
 
