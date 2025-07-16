@@ -1,28 +1,24 @@
 #!/bin/sh -f
 #
 # For useful information on loading your Metathesaurus subset
-# into a Oracle database, please consult the on-line
+# into an Oracle database, please consult the on-line
 # documentation at:
-#
 # http://www.nlm.nih.gov/research/umls/load_scripts.html
 #
+# This script expects only a subset of RRF files in the working
+# directory and generates SQL*Loader control files on the fly.
 
-#
-# Database connection parameters
-# Please edit these variables to reflect your environment
-#
-ORACLE_HOME=<path to ORACLE_HOME>
+ORACLE_HOME=/path/to/ORACLE_HOME
 export ORACLE_HOME
-user=<username>
-password=<password>
-tns_name=<tns_name>
+user=username
+password=password
+tns_name=tns_name
 NLS_LANG=AMERICAN_AMERICA.UTF8
 export NLS_LANG
 
 /bin/rm -f oracle.log
-touch oracle.log
+mkdir -p tmp_ctl
 ef=0
-mrcxt_flag=0
 
 echo "See oracle.log for output"
 echo "----------------------------------------" >> oracle.log 2>&1
@@ -32,199 +28,60 @@ echo "ORACLE_HOME = $ORACLE_HOME" >> oracle.log 2>&1
 echo "user =        $user" >> oracle.log 2>&1
 echo "tns_name =    $tns_name" >> oracle.log 2>&1
 
-# Create empty mrcxt if it doesn't exist, expected by oracle_tables.sql script
-if [ ! -f MRCXT.RRF ]; then mrcxt_flag=1; fi
-if [ ! -f MRCXT.RRF ]; then `touch MRCXT.RRF`; fi
-
 echo "    Create tables ... `/bin/date`" >> oracle.log 2>&1
-echo "@oracle_tables.sql"|$ORACLE_HOME/bin/sqlplus $user/$password@$tns_name  >> oracle.log 2>&1
+echo "@oracle_tables.sql" | $ORACLE_HOME/bin/sqlplus $user/$password@$tns_name >> oracle.log 2>&1
 if [ $? -ne 0 ]; then ef=1; fi
 
-echo "    Load content table data ... `/bin/date`" >> oracle.log 2>&1
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRCOLS.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRCOLS.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRCONSO.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRCONSO.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRCUI.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRCUI.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRCXT.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRCXT.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRDEF.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRDEF.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRDOC.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRDOC.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRFILES.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRFILES.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRHIER.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRHIER.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRHIST.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRHIST.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRMAP.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRMAP.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRRANK.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRRANK.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRREL.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRREL.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRSAB.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRSAB.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRSAT.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRSAT.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRSMAP.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRSMAP.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRSTY.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRSTY.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXNS_ENG.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXNS_ENG.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXNW_ENG.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXNW_ENG.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRAUI.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRAUI.log >> oracle.log
+load_table() {
+  table=$1
+  shift
+  cat > tmp_ctl/$table.ctl <<CTL
+options (direct=true)
+load data
+characterset UTF8 length semantics char
+infile '$table.RRF'
+badfile '$table.bad'
+discardfile '$table.dsc'
+truncate
+into table $table
+fields terminated by '|'
+trailing nullcols
+$1
+CTL
+  $ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="tmp_ctl/$table.ctl" >> oracle.log 2>&1
+  if [ $? -ne 0 ]; then ef=1; fi
+  [ -f $table.log ] && cat $table.log >> oracle.log
+  rm -f tmp_ctl/$table.ctl
+}
 
-echo "    Load word index tables... `/bin/date`" >> oracle.log 2>&1
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_BAQ.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_BAQ.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_CHI.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_CHI.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_CZE.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_CZE.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_DAN.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_DAN.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_DUT.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_DUT.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_ENG.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_ENG.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_EST.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_EST.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_FIN.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_FIN.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_FRE.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_FRE.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_GER.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_GER.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_GRE.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_GRE.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_HEB.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_HEB.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_HUN.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_HUN.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_ITA.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_ITA.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_JPN.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_JPN.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_KOR.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_KOR.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_LAV.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_LAV.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_NOR.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_NOR.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_POL.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_POL.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_POR.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_POR.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_RUS.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_RUS.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_SCR.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_SCR.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_SPA.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_SPA.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_SWE.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_SWE.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MRXW_TUR.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MRXW_TUR.log >> oracle.log
+# Load tables
+load_table MRCOLS "(COL char(40),\nDES char(200),\nREF char(40),\nMIN integer external,\nAV float external,\nMAX integer external,\nFIL char(50),\nDTY char(40))"
+load_table MRCONSO "(CUI char(8),\nLAT char(3),\nTS char(1),\nLUI char(10),\nSTT char(3),\nSUI char(10),\nISPREF char(1),\nAUI char(9),\nSAUI char(50),\nSCUI char(100),\nSDUI char(100),\nSAB char(40),\nTTY char(40),\nCODE char(100),\nSTR char(3000),\nSRL integer external,\nSUPPRESS char(1),\nCVF integer external)"
+load_table MRCUI "(CUI1 char(8),\nVER char(10),\nREL char(4),\nRELA char(100),\nMAPREASON char(4000),\nCUI2 char(8),\nMAPIN char(1))"
+load_table MRDEF "(CUI char(8),\nAUI char(9),\nATUI char(11),\nSATUI char(50),\nSAB char(40),\nDEF char(4000),\nSUPPRESS char(1),\nCVF integer external)"
+load_table MRDOC "(DOCKEY char(50),\nVALUE char(200),\nTYPE char(50),\nEXPL char(1000))"
+load_table MRFILES "(FIL char(50),\nDES char(200),\nFMT char(300),\nCLS integer external,\nRWS integer external,\nBTS integer external)"
+load_table MRHIER "(CUI char(8),\nAUI char(9),\nCXN integer external,\nPAUI char(10),\nSAB char(40),\nRELA char(100),\nPTR char(1000),\nHCD char(100),\nCVF integer external)"
+load_table MRRANK "(RANK integer external,\nSAB char(40),\nTTY char(40),\nSUPPRESS char(1))"
+load_table MRREL "(CUI1 char(8),\nAUI1 char(9),\nSTYPE1 char(50),\nREL char(4),\nCUI2 char(8),\nAUI2 char(9),\nSTYPE2 char(50),\nRELA char(100),\nRUI char(10),\nSRUI char(50),\nSAB char(40),\nSL char(40),\nRG char(10),\nDIR char(1),\nSUPPRESS char(1),\nCVF integer external)"
+load_table MRSAB "(VCUI char(8),\nRCUI char(8),\nVSAB char(40),\nRSAB char(40),\nSON char(3000),\nSF char(40),\nSVER char(40),\nVSTART char(8),\nVEND char(8),\nIMETA char(10),\nRMETA char(10),\nSLC char(1000),\nSCC char(1000),\nSRL integer external,\nTFR integer external,\nCFR integer external,\nCXTY char(50),\nTTYL char(400),\nATNL char(4000),\nLAT char(3),\nCENC char(40),\nCURVER char(1),\nSABIN char(1),\nSSN char(3000),\nSCIT char(4000))"
+load_table MRSAT "(CUI char(8),\nLUI char(10),\nSUI char(10),\nMETAUI char(100),\nSTYPE char(50),\nCODE char(100),\nATUI char(11),\nSATUI char(50),\nATN char(100),\nSAB char(40),\nATV char(4000),\nSUPPRESS char(1),\nCVF integer external)"
+load_table MRSTY "(CUI char(8),\nTUI char(4),\nSTN char(100),\nSTY char(50),\nATUI char(11),\nCVF integer external)"
+load_table MRXNS_ENG "(LAT char(3),\nNSTR char(3000),\nCUI char(8),\nLUI char(10),\nSUI char(10))"
+load_table MRXNW_ENG "(LAT char(3),\nNWD char(200),\nCUI char(8),\nLUI char(10),\nSUI char(10))"
+load_table MRAUI "(AUI1 char(9),\nCUI1 char(8),\nVER char(10),\nREL char(4),\nRELA char(100),\nMAPREASON char(4000),\nAUI2 char(9),\nCUI2 char(8),\nMAPIN char(1))"
 
-echo "    Load auxiliary tables... `/bin/date`" >> oracle.log 2>&1
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="AMBIGSUI.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat AMBIGSUI.log >> oracle.log
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="AMBIGLUI.ctl" >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat AMBIGLUI.log >> oracle.log
-cd CHANGE
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="DELETEDCUI.ctl" >> ../oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat DELETEDCUI.log >> ../oracle.log
-cd ..
-cd CHANGE
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="DELETEDLUI.ctl" >> ../oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat DELETEDLUI.log >> ../oracle.log
-cd ..
-cd CHANGE
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="DELETEDSUI.ctl" >> ../oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat DELETEDSUI.log >> ../oracle.log
-cd ..
-cd CHANGE
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MERGEDCUI.ctl" >> ../oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MERGEDCUI.log >> ../oracle.log
-cd ..
-cd CHANGE
-$ORACLE_HOME/bin/sqlldr $user/$password@$tns_name control="MERGEDLUI.ctl" >> ../oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-cat MERGEDLUI.log >> ../oracle.log
-cd ..
-
-echo "    Create indexes ... `/bin/date`" >> oracle.log 2>&1
-echo "@oracle_indexes.sql"|$ORACLE_HOME/bin/sqlplus $user/$password@$tns_name  >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-
-if [ $mrcxt_flag -eq 1 ]
-then
-rm -f MRCXT.RRF
-echo "DROP TABLE MRCXT;" >> drop_mrcxt.sql
-echo "@drop_mrcxt.sql"|$ORACLE_HOME/bin/sqlplus $user/$password@$tns_name  >> oracle.log 2>&1
-if [ $? -ne 0 ]; then ef=1; fi
-rm -f drop_mrcxt.sql
+# Create indexes
+if [ $ef -ne 1 ]; then
+  echo "    Create indexes ... `/bin/date`" >> oracle.log 2>&1
+  echo "@oracle_indexes.sql" | $ORACLE_HOME/bin/sqlplus $user/$password@$tns_name >> oracle.log 2>&1
+  if [ $? -ne 0 ]; then ef=1; fi
 fi
 
+rm -rf tmp_ctl
+
 echo "----------------------------------------" >> oracle.log 2>&1
-if [ $ef -eq 1 ]
-then
+if [ $ef -eq 1 ]; then
   echo "There were one or more errors.  Please reference the oracle.log file for details." >> oracle.log 2>&1
   retval=-1
 else
