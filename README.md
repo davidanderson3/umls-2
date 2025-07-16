@@ -19,4 +19,4 @@ Only the following RRF files are expected in the `META` directory:
 - `MRXNW_ENG.RRF`
 - `MRAUI.RRF`
 
-Oracle specific scripts and control (`.ctl`) files have been removed. Use `populate_mysql_db.sh` (or the Windows batch equivalent) to load the data into MySQL.
+Oracle loader scripts are still provided, but the `.ctl` files have been removed. `populate_oracle_db.sh` will generate them automatically. Use `populate_mysql_db.sh` (or the Windows batch equivalent) to load the data into MySQL.
