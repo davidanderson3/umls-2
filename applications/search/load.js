@@ -5,9 +5,14 @@ const es = new Client({ node: 'http://127.0.0.1:9200' });
 
 const ensureSynonymAnalyzer = require('./elastic-index'); // ✅ Import index creation script
 
+const path = require('path');
+
 const BATCH_SIZE = 500;
-const MRCONSO = 'MRCONSO.RRF';
-const MRSTY = 'MRSTY.RRF';
+const DATA_DIR = path.join(__dirname, '..', '..', 'Data');
+const MRCONSO = path.join(DATA_DIR, 'MRCONSO.RRF');
+const MRSTY = path.join(DATA_DIR, 'MRSTY.RRF');
+const MRDEF = path.join(DATA_DIR, 'MRDEF.RRF');
+const MRRANK = path.join(DATA_DIR, 'MRRANK.RRF');
 
 function loadPreferredCodeNames(path) {
   return new Promise((resolve) => {
@@ -125,8 +130,8 @@ async function run() {
 
   const codePrefMap = await loadPreferredCodeNames(MRCONSO);
   const styMap = await loadSTY(MRSTY);
-  const mrRankMap = await loadMRRank('MRRANK.RRF');
-  const defMap = await loadDefinitions('MRDEF.RRF', MRCONSO);
+  const mrRankMap = await loadMRRank(MRRANK);
+  const defMap = await loadDefinitions(MRDEF, MRCONSO);
   const rl = readline.createInterface({ input: fs.createReadStream(MRCONSO) });
 
   let currentCUI = null, doc = null, codesMap = null;
