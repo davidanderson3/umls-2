@@ -1,0 +1,11 @@
+[
+  {
+    "cui1": "C0000001",
+    "name1": "Heart attack",
+    "rel": "SY",
+    "rela": "synonym",
+    "cui2": "C0000002",
+    "name2": "Myocardial infarction",
+    "sab": "SAMPLE"
+  }
+]
