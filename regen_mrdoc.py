@@ -1,4 +1,5 @@
 import csv
+import sys
 import os
 import argparse
 from collections import defaultdict
@@ -43,6 +44,8 @@ def write_mrdoc(values, out_path):
 
 
 def main():
+    # Increase the CSV field size limit to handle very large entries
+    csv.field_size_limit(sys.maxsize)
     parser = argparse.ArgumentParser(description='Regenerate MRDOC from MRFILES.')
     parser.add_argument('--data-dir', default='Data', help='Directory containing RRF files')
     parser.add_argument('--mrfiles', default='Data/MRFILES.RRF', help='Path to MRFILES.RRF')
