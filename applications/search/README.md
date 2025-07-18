@@ -24,12 +24,14 @@ npm install                   # install @elastic/elasticsearch, etc
 
 ## 3. Copy UMLS RRF Files
 
-Place your downloaded **MRCONSO.RRF**, **MRSTY.RRF**, and **MRRANK.RRF** into the **same directory** as `load.js` (i.e. `umls-helper/umls-search/`):
+Place your downloaded **MRCONSO.RRF**, **MRSTY.RRF**, **MRRANK.RRF**, and **MRDEF.RRF** into the project's `Data/` directory:
 
 ```bash
 # from wherever you downloaded the files:
-cp /path/to/MRCONSO.RRF /path/to/umls-helper/umls-search/
-cp /path/to/MRSTY.RRF  /path/to/umls-helper/umls-search/
+cp /path/to/MRCONSO.RRF /path/to/umls-helper/Data/
+cp /path/to/MRSTY.RRF  /path/to/umls-helper/Data/
+cp /path/to/MRRANK.RRF /path/to/umls-helper/Data/
+cp /path/to/MRDEF.RRF  /path/to/umls-helper/Data/
 ```
 
 ---
