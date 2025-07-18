@@ -1,0 +1,20 @@
+[
+  {
+    "CUI1": "C0000001",
+    "CUI2": "C0000003",
+    "REL": "CHD",
+    "RELA": "revised",
+    "SAB": "SAB1",
+    "CUI1_name": "Heart Attack",
+    "CUI2_name": "Hypertension"
+  },
+  {
+    "CUI1": "C0000001",
+    "CUI2": "C0000002",
+    "REL": "SY",
+    "RELA": "synonym",
+    "SAB": "SAB1",
+    "CUI1_name": "Heart Attack",
+    "CUI2_name": "Myocardial Infarction"
+  }
+]
