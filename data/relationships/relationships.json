@@ -1,0 +1,29 @@
+[
+  {
+    "CUI1": "C1",
+    "CUI1_name": "Concept1",
+    "REL": "PAR",
+    "RELA": "",
+    "SAB": "SAB",
+    "CUI2": "C2",
+    "CUI2_name": "Concept2"
+  },
+  {
+    "CUI1": "C2",
+    "CUI1_name": "Concept2",
+    "REL": "PAR",
+    "RELA": "",
+    "SAB": "SAB",
+    "CUI2": "C3",
+    "CUI2_name": "Concept3"
+  },
+  {
+    "CUI1": "C3",
+    "CUI1_name": "Concept3",
+    "REL": "PAR",
+    "RELA": "",
+    "SAB": "SAB",
+    "CUI2": "C1",
+    "CUI2_name": "Concept1"
+  }
+]
