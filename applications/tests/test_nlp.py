@@ -27,7 +27,7 @@ def test_run_metamaplite_calls_java(tmp_path):
 
 def test_api_annotation_returns_json():
     app = create_app()
-    with app.test_client() as client, patch("NLP.api.run_metamaplite") as mock_run:
+    with app.test_client() as client, patch("nlp.api.run_metamaplite") as mock_run:
         mock_run.return_value = {"utterances": []}
         resp = client.post("/annotate", json={"text": "hi"})
         assert resp.status_code == 200
