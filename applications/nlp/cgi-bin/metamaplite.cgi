@@ -1,8 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# --- check debug flag from query string ---
+DEBUG=0
+case "${QUERY_STRING:-}" in
+    *debug=1*) DEBUG=1;;
+esac
+
 # --- CGI headers ---
-echo "Content-Type: application/json"
+if [ "$DEBUG" = 1 ]; then
+    echo "Content-Type: text/plain"
+else
+    echo "Content-Type: application/json"
+fi
 echo
 
 # --- read POST body ---
@@ -19,6 +29,7 @@ for pair in "${pairs[@]}"; do
     val=$(printf '%b' "${val//%/\\x}")
     case "$key" in
         text) TEXT="$val";;
+        debug) DEBUG=1;;
     esac
 done
 
@@ -35,4 +46,9 @@ cmd=("$MM_SH" \
       --pipe \
       --outputformat=json)
 
-printf '%s\n' "$TEXT" | "${cmd[@]}"
+if [ "$DEBUG" = 1 ]; then
+    echo "# cmd: ${cmd[*]}" >&2
+    printf '%s\n' "$TEXT" | "${cmd[@]}" 2>&1
+else
+    printf '%s\n' "$TEXT" | "${cmd[@]}"
+fi

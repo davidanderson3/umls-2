@@ -47,9 +47,10 @@
 
 <body>
     <h1>MetaMapLite Demo</h1>
-    <form id="mm-form">
-        <label for="input">Clinical Text:</label>
-        <textarea id="input" name="text" placeholder="Enter your sentence…"></textarea>
+        <form id="mm-form">
+            <label for="input">Clinical Text:</label>
+            <textarea id="input" name="text" placeholder="Enter your sentence…"></textarea>
+            <label><input type="checkbox" id="debug" name="debug"> Debug</label>
 
         <!-- Simple run without restriction parameters -->
 
@@ -71,16 +72,22 @@
 
             // collect form data
             const data = new URLSearchParams(new FormData(form));
+            const debug = document.getElementById('debug').checked;
 
             try {
-                const res = await fetch('/cgi-bin/metamaplite.cgi', {
+                const res = await fetch('/cgi-bin/metamaplite.cgi' + (debug ? '?debug=1' : ''), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: data.toString()
                 });
                 if (!res.ok) throw new Error(res.statusText);
-                const json = await res.json();
-                renderResults(json);
+                if (debug) {
+                    const text = await res.text();
+                    output.textContent = text;
+                } else {
+                    const json = await res.json();
+                    renderResults(json);
+                }
             } catch (err) {
                 output.innerHTML = `<p style="color:red">Error: ${err.message}</p>`;
             }
