@@ -31,6 +31,20 @@
         .highlight {
             background-color: yellow;
             font-weight: bold;
+            position: relative;
+        }
+
+        .highlight::before {
+            content: attr(data-type);
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            font-weight: normal;
+            font-size: 75%;
+            background: #eee;
+            padding: 0 2px;
+            white-space: nowrap;
         }
 
         th,
@@ -324,7 +338,10 @@
                 const { begin, end } = a.span;
                 if (begin < last) return; // skip overlapping
                 result += escapeHtml(text.slice(last, begin));
-                result += `<span class="highlight">${escapeHtml(text.slice(begin, end))}</span>`;
+                const types = (a.semanticTypes || [])
+                    .map(st => SEMTYPE_MAP[st] || st)
+                    .join(', ');
+                result += `<span class="highlight" data-type="${escapeHtml(types)}">${escapeHtml(text.slice(begin, end))}</span>`;
                 last = end;
             });
             result += escapeHtml(text.slice(last));
