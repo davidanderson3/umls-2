@@ -1,0 +1,25 @@
+-classpath
+'/export/home/wjrogers/.m2/repository/org/jetbrains/annotations/13.0/annotations-13.0.jar:/export/home/wjrogers/.m2/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-yaml/2.8.7/jackson-dataformat-yaml-2.8.7.jar:/export/home/wjrogers/.m2/repository/org/mapdb/mapdb/3.0.7/mapdb-3.0.7.jar:/export/home/wjrogers/.m2/repository/net/jpountz/lz4/lz4/1.3.0/lz4-1.3.0.jar:/export/home/wjrogers/.m2/repository/org/apache/commons/commons-lang3/3.11/commons-lang3-3.11.jar:/export/home/wjrogers/.m2/repository/bioc/bioc/1.0.1/bioc-1.0.1.jar:/export/home/wjrogers/.m2/repository/net/jcip/jcip-annotations/1.0/jcip-annotations-1.0.jar:/export/home/wjrogers/.m2/repository/org/checkerframework/checker-qual/3.12.0/checker-qual-3.12.0.jar:/export/home/wjrogers/.m2/repository/org/eclipse/collections/eclipse-collections-api/11.1.0/eclipse-collections-api-11.1.0.jar:/export/home/wjrogers/.m2/repository/org/apache/opennlp/opennlp-maxent/3.0.3/opennlp-maxent-3.0.3.jar:/export/home/wjrogers/.m2/repository/org/json/json/20180813/json-20180813.jar:/export/home/wjrogers/.m2/repository/org/eclipse/collections/eclipse-collections-forkjoin/11.1.0/eclipse-collections-forkjoin-11.1.0.jar:/export/home/wjrogers/.m2/repository/info/debatty/java-string-similarity/0.23/java-string-similarity-0.23.jar:/export/home/wjrogers/.m2/repository/xmlunit/xmlunit/1.4/xmlunit-1.4.jar:/export/home/wjrogers/.m2/repository/org/eclipse/collections/eclipse-collections/11.1.0/eclipse-collections-11.1.0.jar:/export/home/wjrogers/.m2/repository/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar:/export/home/wjrogers/.m2/repository/com/google/j2objc/j2objc-annotations/1.3/j2objc-annotations-1.3.jar:/export/home/wjrogers/.m2/repository/org/slf4j/slf4j-api/1.7.32/slf4j-api-1.7.32.jar:/export/home/wjrogers/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.8.7/jackson-core-2.8.7.jar:/export/home/wjrogers/.m2/repository/com/google/guava/guava/31.1-jre/guava-31.1-jre.jar:/export/home/wjrogers/.m2/repository/commons-logging/commons-logging/1.2/commons-logging-1.2.jar:/export/home/wjrogers/.m2/repository/net/sourceforge/argparse4j/argparse4j/0.8.1/argparse4j-0.8.1.jar:/export/home/wjrogers/.m2/repository/com/google/guava/failureaccess/1.0.1/failureaccess-1.0.1.jar:/export/home/wjrogers/.m2/repository/com/github/jankroken/commandline/1.7.0/commandline-1.7.0.jar:/export/home/wjrogers/.m2/repository/org/yaml/snakeyaml/1.17/snakeyaml-1.17.jar:/export/home/wjrogers/.m2/repository/org/mapdb/elsa/3.0.0-M5/elsa-3.0.0-M5.jar:/export/home/wjrogers/.m2/repository/org/slf4j/slf4j-simple/1.7.32/slf4j-simple-1.7.32.jar:/export/home/wjrogers/.m2/repository/net/sf/opencsv/opencsv/2.3/opencsv-2.3.jar:/export/home/wjrogers/.m2/repository/org/apache/opennlp/opennlp-tools/1.9.3/opennlp-tools-1.9.3.jar:/export/home/wjrogers/.m2/repository/gov/nih/nlm/nls/lvg/lvgdist/2020.0/lvgdist-2020.0.jar:/export/home/wjrogers/.m2/repository/com/google/errorprone/error_prone_annotations/2.11.0/error_prone_annotations-2.11.0.jar:/export/home/wjrogers/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib/1.2.71/kotlin-stdlib-1.2.71.jar:/export/home/wjrogers/.m2/repository/org/apache/uima/uimaj-core/2.10.2/uimaj-core-2.10.2.jar:/export/home/wjrogers/.m2/repository/context/context/2012/context-2012.jar:/export/home/wjrogers/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib-common/1.2.71/kotlin-stdlib-common-1.2.71.jar:/export/home/wjrogers/.m2/repository/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar'
+-encoding
+'UTF-8'
+-private
+-sourcepath
+'/net/lhcdevfiler/vol/cgsb5/ind/II_Group_WorkArea/wjrogers/Projects/public_mm_dist/stage/Linux/workdir/lite_3.6.2rc8/templates/metamaplite/src/main/java'
+-author
+-bottom
+'Copyright &#169; 2022. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'/net/lhcdevfiler/vol/cgsb5/ind/II_Group_WorkArea/wjrogers/Projects/public_mm_dist/stage/Linux/workdir/lite_3.6.2rc8/templates/metamaplite/target/site/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'metamaplite 3.6.2rc8 API'
+-linkoffline
+'http://docs.oracle.com/javase/8/docs/api' '/net/lhcdevfiler/vol/cgsb5/ind/II_Group_WorkArea/wjrogers/Projects/public_mm_dist/stage/Linux/workdir/lite_3.6.2rc8/templates/metamaplite/target/javadoc-bundle-options'
+-nohelp
+-use
+-version
+-windowtitle
+'metamaplite 3.6.2rc8 API'

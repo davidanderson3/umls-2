@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>MetaMapLite Demo</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 2em;
+        }
+
+        textarea {
+            width: 100%;
+            height: 8em;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 1em;
+            max-height: 20em;
+            overflow: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>MetaMapLite Demo</h1>
+    <p>Enter some clinical text and hit “Annotate”:</p>
+    <textarea id="input"></textarea><br>
+    <button id="run">Annotate</button>
+    <h2>Output (JSON)</h2>
+    <pre id="output">—</pre>
+
+    <script>
+        document.getElementById('run').onclick = async () => {
+            const text = document.getElementById('input').value;
+            if (!text.trim()) return alert('Please enter some text.');
+            document.getElementById('output').textContent = 'Processing…';
+            try {
+                const res = await fetch('/cgi-bin/metamaplite.cgi', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'text=' + encodeURIComponent(text)
+                });
+                if (!res.ok) throw new Error(res.statusText);
+                const out = await res.text();
+                document.getElementById('output').textContent = out;
+            } catch (e) {
+                document.getElementById('output').textContent = 'Error: ' + e;
+            }
+        };
+    </script>
+</body>
+
+</html>
