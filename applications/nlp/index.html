@@ -83,7 +83,22 @@
                 if (!res.ok) throw new Error(res.statusText);
                 if (debug) {
                     const text = await res.text();
-                    output.textContent = text;
+                    output.innerHTML = '';
+                    const pre = document.createElement('pre');
+                    pre.textContent = text;
+                    output.appendChild(pre);
+
+                    let idx = Math.max(text.lastIndexOf('['), text.lastIndexOf('{'));
+                    if (idx !== -1) {
+                        try {
+                            const json = JSON.parse(text.slice(idx));
+                            const div = document.createElement('div');
+                            div.innerHTML = createResultsTable(json);
+                            output.appendChild(div);
+                        } catch (_) {
+                            /* ignore parse errors */
+                        }
+                    }
                 } else {
                     const json = await res.json();
                     renderResults(json);
@@ -93,12 +108,10 @@
             }
         });
 
-        function renderResults(json) {
+        function createResultsTable(json) {
             if (!json.annotations || json.annotations.length === 0) {
-                output.innerHTML = '<p><em>No entities found.</em></p>';
-                return;
+                return '<p><em>No entities found.</em></p>';
             }
-            // build table
             let html = `
       <table>
         <thead>
@@ -132,7 +145,11 @@
         `;
             });
             html += `</tbody></table>`;
-            output.innerHTML = html;
+            return html;
+        }
+
+        function renderResults(json) {
+            output.innerHTML = createResultsTable(json);
         }
     </script>
 </body>
