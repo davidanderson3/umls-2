@@ -10,46 +10,129 @@
             margin: 2em;
         }
 
-        textarea {
+        textarea,
+        input[type=text] {
             width: 100%;
-            height: 8em;
+            box-sizing: border-box;
         }
 
-        pre {
-            background: #f4f4f4;
-            padding: 1em;
-            max-height: 20em;
-            overflow: auto;
+        label {
+            display: block;
+            margin: .5em 0 .2em;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1em;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 0.3em;
+            text-align: left;
+        }
+
+        th {
+            background: #eee;
+        }
+
+        #output {
+            margin-top: 1em;
         }
     </style>
 </head>
 
 <body>
     <h1>MetaMapLite Demo</h1>
-    <p>Enter some clinical text and hit “Annotate”:</p>
-    <textarea id="input"></textarea><br>
-    <button id="run">Annotate</button>
-    <h2>Output (JSON)</h2>
-    <pre id="output">—</pre>
+    <form id="mm-form">
+        <label for="input">Clinical Text:</label>
+        <textarea id="input" name="text" placeholder="Enter your sentence…"></textarea>
+
+        <label for="sts">Restrict Semantic Types (comma‑sep TUIs):</label>
+        <input id="sts" name="restrict_sts" type="text" value="T047,T184,T046,T121,T116,T023">
+
+        <label for="sources">Restrict Sources (comma‑sep SABs):</label>
+        <input id="sources" name="restrict_sources" type="text" placeholder="e.g. SNOMEDCT_US,RXNORM">
+
+        <label for="max">Max Candidates per Span:</label>
+        <input id="max" name="max_candidates" type="text" value="5">
+
+        <button type="submit">Annotate</button>
+    </form>
+
+    <div id="output">
+        <!-- populated by JS -->
+    </div>
 
     <script>
-        document.getElementById('run').onclick = async () => {
-            const text = document.getElementById('input').value;
-            if (!text.trim()) return alert('Please enter some text.');
-            document.getElementById('output').textContent = 'Processing…';
+        const form = document.getElementById('mm-form');
+        const output = document.getElementById('output');
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            output.innerHTML = '<p>Processing…</p>';
+
+            // collect form data
+            const data = new URLSearchParams(new FormData(form));
+
             try {
                 const res = await fetch('/cgi-bin/metamaplite.cgi', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: 'text=' + encodeURIComponent(text)
+                    body: data.toString()
                 });
                 if (!res.ok) throw new Error(res.statusText);
-                const out = await res.text();
-                document.getElementById('output').textContent = out;
-            } catch (e) {
-                document.getElementById('output').textContent = 'Error: ' + e;
+                const json = await res.json();
+                renderResults(json);
+            } catch (err) {
+                output.innerHTML = `<p style="color:red">Error: ${err.message}</p>`;
             }
-        };
+        });
+
+        function renderResults(json) {
+            if (!json.annotations || json.annotations.length === 0) {
+                output.innerHTML = '<p><em>No entities found.</em></p>';
+                return;
+            }
+            // build table
+            let html = `
+      <table>
+        <thead>
+          <tr>
+            <th>Text</th>
+            <th>CUI</th>
+            <th>Name</th>
+            <th>Type(s)</th>
+            <th>Score</th>
+            <th>Span</th>
+          </tr>
+        </thead>
+        <tbody>
+      `;
+            json.annotations.forEach(ent => {
+                const txt = ent.trigger || '';
+                const cui = ent.cui || '';
+                const name = ent.preferredName || '';
+                const types = (ent.semanticTypes || []).join(', ');
+                const score = ent.score != null ? ent.score : '';
+                const span = ent.span ? `${ent.span.begin}-${ent.span.end}` : '';
+                html += `
+        <tr>
+          <td>${txt}</td>
+          <td>${cui}</td>
+          <td>${name}</td>
+          <td>${types}</td>
+          <td>${score}</td>
+          <td>${span}</td>
+        </tr>
+        `;
+            });
+            html += `</tbody></table>`;
+            output.innerHTML = html;
+        }
     </script>
 </body>
 

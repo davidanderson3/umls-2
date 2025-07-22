@@ -19,4 +19,8 @@ MODELS="$BASE/metamaplite/data/models"
 
 # --- run MetaMapLite ---
 printf '%s\n' "$TEXT" \
-  | "$MM_SH" --indexdir="$INDEXDIR" --modelsdir="$MODELS" --pipe --format=json
+  | "$MM_SH" \
+      --indexdir="$INDEXDIR" \
+      --modelsdir="$MODELS" \
+      --pipe \
+      --outputformat=json
