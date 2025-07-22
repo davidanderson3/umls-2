@@ -28,6 +28,11 @@
             margin-top: 1em;
         }
 
+        .highlight {
+            background-color: yellow;
+            font-weight: bold;
+        }
+
         th,
         td {
             border: 1px solid #ccc;
@@ -109,25 +114,7 @@
         });
 
         function createResultsTable(data) {
-            let anns;
-            if (Array.isArray(data)) {
-                anns = data.map(ent => {
-                    const ev = (ent.evlist && ent.evlist[0]) || {};
-                    const ci = ev.conceptinfo || {};
-                    return {
-                        trigger: ent.matchedtext || '',
-                        cui: ci.cui || '',
-                        preferredName: ci.preferredname || '',
-                        semanticTypes: ci.semantictypes || [],
-                        score: ev.score,
-                        span: (ent.start != null && ent.length != null)
-                            ? { begin: ent.start, end: ent.start + ent.length }
-                            : null
-                    };
-                });
-            } else {
-                anns = data.annotations || [];
-            }
+            let anns = parseAnnotations(data);
             if (!anns || anns.length === 0) {
                 return '<p><em>No entities found.</em></p>';
             }
@@ -167,8 +154,53 @@
             return html;
         }
 
+        function escapeHtml(str) {
+            return str.replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;');
+        }
+
+        function parseAnnotations(data) {
+            if (Array.isArray(data)) {
+                return data.map(ent => {
+                    const ev = (ent.evlist && ent.evlist[0]) || {};
+                    const ci = ev.conceptinfo || {};
+                    return {
+                        trigger: ent.matchedtext || '',
+                        cui: ci.cui || '',
+                        preferredName: ci.preferredname || '',
+                        semanticTypes: ci.semantictypes || [],
+                        score: ev.score,
+                        span: (ent.start != null && ent.length != null)
+                            ? { begin: ent.start, end: ent.start + ent.length }
+                            : null
+                    };
+                });
+            }
+            return data.annotations || [];
+        }
+
+        function highlightText(text, anns) {
+            const spans = anns.filter(a => a.span).sort((a, b) => a.span.begin - b.span.begin);
+            let result = '';
+            let last = 0;
+            spans.forEach(a => {
+                const { begin, end } = a.span;
+                if (begin < last) return; // skip overlapping
+                result += escapeHtml(text.slice(last, begin));
+                result += `<span class="highlight">${escapeHtml(text.slice(begin, end))}</span>`;
+                last = end;
+            });
+            result += escapeHtml(text.slice(last));
+            return `<p>${result}</p>`;
+        }
+
         function renderResults(json) {
-            output.innerHTML = createResultsTable(json);
+            const anns = parseAnnotations(json);
+            const text = document.getElementById('input').value;
+            const highlighted = highlightText(text, anns);
+            const table = createResultsTable(json);
+            output.innerHTML = highlighted + table;
         }
     </script>
 </body>
