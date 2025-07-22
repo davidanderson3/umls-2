@@ -1,0 +1,1 @@
+../../scripts/database_load_scripts/oracle_tables.sql

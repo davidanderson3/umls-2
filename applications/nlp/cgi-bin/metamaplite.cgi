@@ -9,20 +9,24 @@ echo
 read -n "${CONTENT_LENGTH:-0}" body
 
 # --- parse URL encoded form fields ---
-declare -A params
+TEXT=""
+RESTRICT_STS=""
+RESTRICT_SOURCES=""
+MAX_CANDIDATES=""
+
 IFS='&' read -ra pairs <<< "$body"
 for pair in "${pairs[@]}"; do
     key=${pair%%=*}
     val=${pair#*=}
     val=${val//+/ }
     val=$(printf '%b' "${val//%/\\x}")
-    params[$key]="$val"
+    case "$key" in
+        text) TEXT="$val";;
+        restrict_sts) RESTRICT_STS="$val";;
+        restrict_sources) RESTRICT_SOURCES="$val";;
+        max_candidates) MAX_CANDIDATES="$val";;
+    esac
 done
-
-TEXT=${params[text]:-}
-RESTRICT_STS=${params[restrict_sts]:-}
-RESTRICT_SOURCES=${params[restrict_sources]:-}
-MAX_CANDIDATES=${params[max_candidates]:-}
 
 # --- paths relative to /applications/nlp/cgi-bin ---
 BASE="$(cd "$(dirname "$0")/.." && pwd)"
