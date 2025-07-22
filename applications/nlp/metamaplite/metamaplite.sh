@@ -20,7 +20,7 @@ MMLPROPS="-Dopennlp.en-sent.bin.path=$OPENNLP_MODELS/en-sent.bin \
     -Dopennlp.en-chunker.bin.path=$OPENNLP_MODELS/en-chunker.bin \
     -Dlog4j.configurationFile=$PROJECTDIR/config/log4j2.xml \
     -Dmetamaplite.entitylookup.resultlength=1500 \
-    -Dmetamaplite.index.directory=$PROJECTDIR/data/ivf/2022AA/USAbase \
+    -Dmetamaplite.index.directory=$PROJECTDIR/data/ivf/2022AB/USAbase \
     -Dmetamaplite.excluded.termsfile=$PROJECTDIR/data/specialterms.txt"
 
 MML_CLASSPATH=$PROJECTDIR/target/classes:$PROJECTDIR/build/classes:$PROJECTDIR/classes:$PROJECTDIR:$MML_JAR
