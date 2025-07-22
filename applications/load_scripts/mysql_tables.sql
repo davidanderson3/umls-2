@@ -1,0 +1,1 @@
+../../scripts/database_load_scripts/mysql_tables.sql

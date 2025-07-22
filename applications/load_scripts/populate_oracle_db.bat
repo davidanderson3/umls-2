@@ -1,0 +1,1 @@
+../../scripts/database_load_scripts/populate_oracle_db.bat
