@@ -8,8 +8,21 @@ echo
 # --- read POST body ---
 read -n "${CONTENT_LENGTH:-0}" body
 
-# --- URL‑decode the `text` field ---
-TEXT=$(printf '%b' "${body//%/\\x}" | sed -e 's/^text=//')
+# --- parse URL encoded form fields ---
+declare -A params
+IFS='&' read -ra pairs <<< "$body"
+for pair in "${pairs[@]}"; do
+    key=${pair%%=*}
+    val=${pair#*=}
+    val=${val//+/ }
+    val=$(printf '%b' "${val//%/\\x}")
+    params[$key]="$val"
+done
+
+TEXT=${params[text]:-}
+RESTRICT_STS=${params[restrict_sts]:-}
+RESTRICT_SOURCES=${params[restrict_sources]:-}
+MAX_CANDIDATES=${params[max_candidates]:-}
 
 # --- paths relative to /applications/nlp/cgi-bin ---
 BASE="$(cd "$(dirname "$0")/.." && pwd)"
@@ -18,9 +31,20 @@ INDEXDIR="$BASE/metamaplite/data/ivf/2022AB/USAbase"
 MODELS="$BASE/metamaplite/data/models"
 
 # --- run MetaMapLite ---
-printf '%s\n' "$TEXT" \
-  | "$MM_SH" \
+cmd=("$MM_SH" \
       --indexdir="$INDEXDIR" \
       --modelsdir="$MODELS" \
       --pipe \
-      --outputformat=json
+      --outputformat=json)
+
+if [[ -n "$RESTRICT_STS" ]]; then
+  cmd+=(--restrict_to_sts="$RESTRICT_STS")
+fi
+if [[ -n "$RESTRICT_SOURCES" ]]; then
+  cmd+=(--restrict_to_sources="$RESTRICT_SOURCES")
+fi
+if [[ -n "$MAX_CANDIDATES" ]]; then
+  cmd+=(--max_entity_candidates="$MAX_CANDIDATES")
+fi
+
+printf '%s\n' "$TEXT" | "${cmd[@]}"
