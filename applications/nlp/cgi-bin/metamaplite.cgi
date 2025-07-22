@@ -10,8 +10,6 @@ read -n "${CONTENT_LENGTH:-0}" body
 
 # --- parse URL encoded form fields ---
 TEXT=""
-RESTRICT_STS=""
-RESTRICT_SOURCES=""
 
 IFS='&' read -ra pairs <<< "$body"
 for pair in "${pairs[@]}"; do
@@ -21,8 +19,6 @@ for pair in "${pairs[@]}"; do
     val=$(printf '%b' "${val//%/\\x}")
     case "$key" in
         text) TEXT="$val";;
-        restrict_sts) RESTRICT_STS="$val";;
-        restrict_sources) RESTRICT_SOURCES="$val";;
     esac
 done
 
@@ -38,12 +34,5 @@ cmd=("$MM_SH" \
       --modelsdir="$MODELS" \
       --pipe \
       --outputformat=json)
-
-if [[ -n "$RESTRICT_STS" ]]; then
-  cmd+=(--restrict_to_sts="$RESTRICT_STS")
-fi
-if [[ -n "$RESTRICT_SOURCES" ]]; then
-  cmd+=(--restrict_to_sources="$RESTRICT_SOURCES")
-fi
 
 printf '%s\n' "$TEXT" | "${cmd[@]}"
