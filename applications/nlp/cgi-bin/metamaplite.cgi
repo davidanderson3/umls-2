@@ -12,7 +12,6 @@ read -n "${CONTENT_LENGTH:-0}" body
 TEXT=""
 RESTRICT_STS=""
 RESTRICT_SOURCES=""
-MAX_CANDIDATES=""
 
 IFS='&' read -ra pairs <<< "$body"
 for pair in "${pairs[@]}"; do
@@ -24,7 +23,6 @@ for pair in "${pairs[@]}"; do
         text) TEXT="$val";;
         restrict_sts) RESTRICT_STS="$val";;
         restrict_sources) RESTRICT_SOURCES="$val";;
-        max_candidates) MAX_CANDIDATES="$val";;
     esac
 done
 
@@ -46,9 +44,6 @@ if [[ -n "$RESTRICT_STS" ]]; then
 fi
 if [[ -n "$RESTRICT_SOURCES" ]]; then
   cmd+=(--restrict_to_sources="$RESTRICT_SOURCES")
-fi
-if [[ -n "$MAX_CANDIDATES" ]]; then
-  cmd+=(--max_entity_candidates="$MAX_CANDIDATES")
 fi
 
 printf '%s\n' "$TEXT" | "${cmd[@]}"
