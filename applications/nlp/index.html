@@ -70,8 +70,18 @@
             white-space: pre-wrap;
         }
 
+        #results-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 1em;
+        }
+
+        #output {
+            flex: 1;
+        }
+
         #type-filter {
-            margin-top: 1em;
+            margin-top: 0;
         }
 
         #type-filter label {
@@ -99,10 +109,12 @@
         <button type="submit">Annotate</button>
     </form>
 
-    <div id="output">
-        <!-- populated by JS -->
+    <div id="results-container">
+        <div id="output">
+            <!-- populated by JS -->
+        </div>
+        <div id="type-filter"></div>
     </div>
-    <div id="type-filter"></div>
 
     <script>
         const form = document.getElementById('mm-form');
@@ -255,10 +267,13 @@
 
         function applyTypeFilter(anns, filterSet) {
             if (!filterSet || filterSet.size === 0) return anns;
-            return anns.map(a => ({
-                ...a,
-                semanticTypes: (a.semanticTypes || []).filter(st => !filterSet.has(st.toLowerCase()))
-            }));
+            return anns.reduce((acc, a) => {
+                const filtered = (a.semanticTypes || []).filter(st => !filterSet.has(st.toLowerCase()));
+                if (filtered.length > 0) {
+                    acc.push({ ...a, semanticTypes: filtered });
+                }
+                return acc;
+            }, []);
         }
 
         function updateDisplay() {
