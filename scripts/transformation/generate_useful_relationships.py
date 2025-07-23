@@ -76,8 +76,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Generate a useful JSON relationships file"
     )
-    parser.add_argument("mrrel", help="Path to MRREL.RRF")
-    parser.add_argument("mrconso", help="Path to MRCONSO.RRF")
+    parser.add_argument(
+        "data_dir",
+        nargs="?",
+        default="Data",
+        help="Directory containing MRREL.RRF and MRCONSO.RRF",
+    )
     parser.add_argument(
         "--output",
         default=Path("data/relationships/useful_relationships.json"),
@@ -88,8 +92,12 @@ def main() -> None:
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    aui_names, cui_pref = parse_mrconso(args.mrconso)
-    records = parse_mrrel(args.mrrel, aui_names, cui_pref)
+    data_dir = Path(args.data_dir)
+    mrconso_path = data_dir / "MRCONSO.RRF"
+    mrrel_path = data_dir / "MRREL.RRF"
+
+    aui_names, cui_pref = parse_mrconso(str(mrconso_path))
+    records = parse_mrrel(str(mrrel_path), aui_names, cui_pref)
 
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(records, f, indent=2, ensure_ascii=False)
