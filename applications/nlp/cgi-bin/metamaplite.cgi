@@ -55,7 +55,9 @@ filter_abbrev() {
            -e '^[[:space:]]*shortForm:' \
            -e '^[[:space:]]*shortFormIndex:' \
            -e '^[[:space:]]*longForm:' \
-           -e '^[[:space:]]*longFormIndex:'
+           -e '^[[:space:]]*longFormIndex:' \
+           -e '^[[:space:]]*\[[^]]*\][[:space:]]' \
+           -e '^Exception in thread'
 }
 
 if [ "$DEBUG" = 1 ]; then
