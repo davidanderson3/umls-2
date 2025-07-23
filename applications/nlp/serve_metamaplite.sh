@@ -9,7 +9,7 @@ set -euo pipefail
 PORT="${1:-8000}"
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-echo "[*] Serving MetaMapLite UI from $BASE_DIR on http://localhost:$PORT"
+echo "[*] Serving NLP UI from $BASE_DIR on http://localhost:$PORT"
 echo "[*] Press Ctrl‑C to stop."
 
 cd "$BASE_DIR"
