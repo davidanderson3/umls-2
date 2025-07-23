@@ -29,7 +29,6 @@
         }
 
         .highlight {
-            background-color: yellow;
             font-weight: bold;
             position: relative;
         }
@@ -219,6 +218,18 @@
             "vtbt": "Vertebrate"
         };
 
+        const SEMTYPE_COLOR = {
+            dsyn: '#ffcccc', // Disease or Syndrome
+            fndg: '#ccffcc', // Finding
+            phsu: '#cce5ff', // Pharmacologic Substance
+            topp: '#e6ccff', // Therapeutic or Preventive Procedure
+            gngm: '#ffd9b3', // Gene or Genome
+            orga: '#fff0b3', // Organism Attribute
+            patf: '#ffb3e6', // Pathologic Function
+            sosy: '#ffe0b3', // Sign or Symptom
+            anab: '#d9d9ff'  // Anatomical Abnormality
+        };
+
         form.addEventListener('submit', async e => {
             e.preventDefault();
             output.innerHTML = '<p>Processing…</p>';
@@ -338,10 +349,12 @@
                 const { begin, end } = a.span;
                 if (begin < last) return; // skip overlapping
                 result += escapeHtml(text.slice(last, begin));
-                const types = (a.semanticTypes || [])
+                const semtypes = a.semanticTypes || [];
+                const types = semtypes
                     .map(st => SEMTYPE_MAP[st] || st)
                     .join(', ');
-                result += `<span class="highlight" data-type="${escapeHtml(types)}">${escapeHtml(text.slice(begin, end))}</span>`;
+                const color = SEMTYPE_COLOR[semtypes[0]] || 'yellow';
+                result += `<span class="highlight" data-type="${escapeHtml(types)}" style="background-color:${color}">${escapeHtml(text.slice(begin, end))}</span>`;
                 last = end;
             });
             result += escapeHtml(text.slice(last));
