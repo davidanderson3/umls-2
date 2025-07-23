@@ -102,8 +102,18 @@ container.appendChild(ul);
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate browsable UMLS hierarchy")
-    parser.add_argument("mrrel", help="Path to MRREL.RRF")
-    parser.add_argument("mrconso", help="Path to MRCONSO.RRF")
+    parser.add_argument(
+        "mrrel",
+        nargs="?",
+        default="Data/MRREL.RRF",
+        help="Path to MRREL.RRF",
+    )
+    parser.add_argument(
+        "mrconso",
+        nargs="?",
+        default="Data/MRCONSO.RRF",
+        help="Path to MRCONSO.RRF",
+    )
     parser.add_argument("--root", help="Root CUI", required=True)
     parser.add_argument("--html", help="Output HTML file")
     args = parser.parse_args()

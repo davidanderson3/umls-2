@@ -7,7 +7,11 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from working.generate_hierarchy import parse_mrconso, parse_mrrel, build_tree
+from scripts.transformation.generate_hierarchy import (
+    parse_mrconso,
+    parse_mrrel,
+    build_tree,
+)
 
 
 def write_temp_file(path: Path, lines: list[str]):
