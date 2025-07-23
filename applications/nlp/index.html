@@ -78,6 +78,11 @@
             <label for="input">Clinical Text:</label>
             <textarea id="input" name="text" placeholder="Enter your sentence…"></textarea>
             <label><input type="checkbox" id="debug" name="debug"> Debug</label>
+            <label for="tool">NLP Tool:</label>
+            <select id="tool" name="tool">
+                <option value="metamaplite">MetaMapLite</option>
+                <option value="quickumls">QuickUMLS</option>
+            </select>
             <label for="filter-types">Ignore Semantic Types:</label>
             <input type="text" id="filter-types" placeholder="e.g., dsyn, patf">
 
@@ -251,9 +256,13 @@
             // collect form data
             const data = new URLSearchParams(new FormData(form));
             const debug = document.getElementById('debug').checked;
+            const tool = document.getElementById('tool').value;
+            const endpoint = tool === 'quickumls'
+                ? '/cgi-bin/quickumls.cgi'
+                : '/cgi-bin/metamaplite.cgi';
             
             try {
-                const res = await fetch('/cgi-bin/metamaplite.cgi' + (debug ? '?debug=1' : ''), {
+                const res = await fetch(endpoint + (debug ? '?debug=1' : ''), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: data.toString()
@@ -337,6 +346,20 @@
 
         function parseAnnotations(data) {
             if (Array.isArray(data)) {
+                if (data.length && 'start' in data[0] && 'end' in data[0]) {
+                    // QuickUMLS format
+                    return data.map(ent => ({
+                        trigger: ent.ngram || ent.term || '',
+                        cui: ent.cui || '',
+                        preferredName: ent.term || '',
+                        semanticTypes: ent.semtypes || [],
+                        score: ent.similarity,
+                        span: (ent.start != null && ent.end != null)
+                            ? { begin: ent.start, end: ent.end }
+                            : null
+                    }));
+                }
+                // MetaMapLite format
                 return data.map(ent => {
                     const ev = (ent.evlist && ent.evlist[0]) || {};
                     const ci = ev.conceptinfo || {};
