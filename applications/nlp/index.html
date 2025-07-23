@@ -29,9 +29,11 @@
         }
 
         .highlight {
-            background-color: yellow;
+            background-color: #ffffcc;
             font-weight: bold;
             position: relative;
+            padding: 0 2px;
+            border-radius: 3px;
         }
 
         .highlight::before {
@@ -39,11 +41,13 @@
             position: absolute;
             bottom: 100%;
             left: 0;
-            right: 0;
+            transform: translateY(-2px);
             font-weight: normal;
-            font-size: 75%;
-            background: #eee;
-            padding: 0 2px;
+            font-size: 70%;
+            background: #007acc;
+            color: #fff;
+            padding: 2px 4px;
+            border-radius: 3px;
             white-space: nowrap;
         }
 
@@ -70,6 +74,8 @@
             <label for="input">Clinical Text:</label>
             <textarea id="input" name="text" placeholder="Enter your sentence…"></textarea>
             <label><input type="checkbox" id="debug" name="debug"> Debug</label>
+            <label for="filter-types">Ignore Semantic Types:</label>
+            <input type="text" id="filter-types" placeholder="e.g., dsyn, patf">
 
         <!-- Simple run without restriction parameters -->
 
@@ -84,6 +90,7 @@
     <script>
         const form = document.getElementById('mm-form');
         const output = document.getElementById('output');
+        const filterInput = document.getElementById('filter-types');
 
         // Mapping from MetaMapLite semantic type abbreviations to
         // their human‑readable names. This is used purely for the
@@ -219,6 +226,20 @@
             "vtbt": "Vertebrate"
         };
 
+        function getFilterSet() {
+            const val = (filterInput.value || '').trim().toLowerCase();
+            if (!val) return new Set();
+            return new Set(val.split(/\s*,\s*/).filter(Boolean));
+        }
+
+        function applyTypeFilter(anns, filterSet) {
+            if (!filterSet || filterSet.size === 0) return anns;
+            return anns.map(a => ({
+                ...a,
+                semanticTypes: (a.semanticTypes || []).filter(st => !filterSet.has(st.toLowerCase()))
+            }));
+        }
+
         form.addEventListener('submit', async e => {
             e.preventDefault();
             output.innerHTML = '<p>Processing…</p>';
@@ -226,7 +247,7 @@
             // collect form data
             const data = new URLSearchParams(new FormData(form));
             const debug = document.getElementById('debug').checked;
-
+            
             try {
                 const res = await fetch('/cgi-bin/metamaplite.cgi' + (debug ? '?debug=1' : ''), {
                     method: 'POST',
@@ -245,8 +266,9 @@
                     if (idx !== -1) {
                         try {
                             const json = JSON.parse(text.slice(idx));
+                            const anns = applyTypeFilter(parseAnnotations(json), getFilterSet());
                             const div = document.createElement('div');
-                            div.innerHTML = createResultsTable(json);
+                            div.innerHTML = createResultsTable(anns);
                             output.appendChild(div);
                         } catch (_) {
                             /* ignore parse errors */
@@ -261,8 +283,7 @@
             }
         });
 
-        function createResultsTable(data) {
-            let anns = parseAnnotations(data);
+        function createResultsTable(anns) {
             if (!anns || anns.length === 0) {
                 return '<p><em>No entities found.</em></p>';
             }
@@ -330,7 +351,7 @@
             return data.annotations || [];
         }
 
-        function highlightText(text, anns) {
+        function highlightText(text, anns, filterSet) {
             const spans = anns.filter(a => a.span).sort((a, b) => a.span.begin - b.span.begin);
             let result = '';
             let last = 0;
@@ -338,10 +359,13 @@
                 const { begin, end } = a.span;
                 if (begin < last) return; // skip overlapping
                 result += escapeHtml(text.slice(last, begin));
-                const types = (a.semanticTypes || [])
-                    .map(st => SEMTYPE_MAP[st] || st)
-                    .join(', ');
-                result += `<span class="highlight" data-type="${escapeHtml(types)}">${escapeHtml(text.slice(begin, end))}</span>`;
+                const filtered = (a.semanticTypes || []).filter(st => !filterSet.has(st.toLowerCase()));
+                const types = filtered.map(st => SEMTYPE_MAP[st] || st).join(', ');
+                if (types) {
+                    result += `<span class="highlight" data-type="${escapeHtml(types)}">${escapeHtml(text.slice(begin, end))}</span>`;
+                } else {
+                    result += escapeHtml(text.slice(begin, end));
+                }
                 last = end;
             });
             result += escapeHtml(text.slice(last));
@@ -349,10 +373,12 @@
         }
 
         function renderResults(json) {
-            const anns = parseAnnotations(json);
+            const raw = parseAnnotations(json);
+            const filterSet = getFilterSet();
+            const anns = applyTypeFilter(raw, filterSet);
             const text = document.getElementById('input').value;
-            const highlighted = highlightText(text, anns);
-            const table = createResultsTable(json);
+            const highlighted = highlightText(text, anns, filterSet);
+            const table = createResultsTable(anns);
             output.innerHTML = highlighted + table;
         }
     </script>
