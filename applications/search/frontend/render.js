@@ -1,4 +1,4 @@
-import { escapeHtml, getQueryInput, prepareForSearch } from './utils.js';
+import { escapeHtml, getQueryInput, prepareForSearch, getSemanticTypeName } from './utils.js';
 
 export function renderPage() {
     const resultsDiv = document.getElementById('results');
@@ -82,7 +82,7 @@ export function renderCUIs(hitsArr) {
             <td>${isExactMatch ? '✅' : ''}</td>
             <td>${escapeHtml(prefName)}</td>
             <td><a href="https://uts.nlm.nih.gov/uts/umls/concept/${hit.CUI}" target="_blank">${hit.CUI || ''}</a></td>
-            <td>${(hit.STY || []).map(sty => `<span class="tag">${escapeHtml(sty)}</span>`).join(' ')}</td>
+            <td>${(hit.STY || []).map(sty => `<span class="tag">${escapeHtml(getSemanticTypeName(sty))}</span>`).join(' ')}</td>
         `;
 
         tbody.appendChild(row);
@@ -104,7 +104,7 @@ export function renderDetails(hit) {
     cuiLink.textContent = src.CUI;
 
     const stySpan = clone.querySelector('.details-sty');
-    stySpan.innerHTML = (src.STY || []).map(sty => `<span class="tag">${escapeHtml(sty)}</span>`).join(' ');
+    stySpan.innerHTML = (src.STY || []).map(sty => `<span class="tag">${escapeHtml(getSemanticTypeName(sty))}</span>`).join(' ');
 
     const namesDiv = clone.querySelector('.details-names');
     const defsDiv = clone.querySelector('.details-defs');
