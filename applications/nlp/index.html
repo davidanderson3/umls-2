@@ -75,6 +75,9 @@
 <body>
     <h1>NLP Demo</h1>
         <form id="mm-form">
+            <label for="input">Clinical Text:</label>
+            <textarea id="input" name="text" placeholder="Enter your sentence…"></textarea>
+            <label><input type="checkbox" id="debug" name="debug"> Debug</label>
             <label for="tool">NLP Tool:</label>
             <select id="tool" name="tool">
                 <option value="metamaplite">MetaMapLite</option>
@@ -97,8 +100,6 @@
     <div id="output">
         <!-- populated by JS -->
     </div>
-<label for="filter-types">Ignore Semantic Types:</label>
-<input type="text" id="filter-types" placeholder="e.g., dsyn, patf">
 
     <script>
         const form = document.getElementById('mm-form');
