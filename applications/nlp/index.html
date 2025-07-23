@@ -69,6 +69,14 @@
         #output p {
             white-space: pre-wrap;
         }
+
+        #type-filter {
+            margin-top: 1em;
+        }
+
+        #type-filter label {
+            margin-right: 0.5em;
+        }
     </style>
 </head>
 
@@ -78,16 +86,10 @@
             <label for="input">Clinical Text:</label>
             <textarea id="input" name="text" placeholder="Enter your sentence…"></textarea>
             <label><input type="checkbox" id="debug" name="debug"> Debug</label>
-            <label for="tool">NLP Tool:</label>
-            <select id="tool" name="tool">
-                <option value="metamaplite">MetaMapLite</option>
-                <option value="quickumls">QuickUMLS</option>
-            </select>
-            <label for="filter-types">Ignore Semantic Types:</label>
-            <input type="text" id="filter-types" placeholder="e.g., dsyn, patf">
             <label for="engine">NLP Engine:</label>
             <select id="engine" name="engine">
                 <option value="metamaplite" selected>MetaMapLite</option>
+                <option value="quickumls">QuickUMLS</option>
                 <option value="ctakes">cTAKES</option>
             </select>
 
@@ -100,11 +102,12 @@
     <div id="output">
         <!-- populated by JS -->
     </div>
+    <div id="type-filter"></div>
 
     <script>
         const form = document.getElementById('mm-form');
         const output = document.getElementById('output');
-        const filterInput = document.getElementById('filter-types');
+        const filterContainer = document.getElementById('type-filter');
         let lastAnnots = [];
         let lastText = "";
         // Mapping from MetaMapLite semantic type abbreviations to
@@ -242,9 +245,12 @@
         };
 
         function getFilterSet() {
-            const val = (filterInput.value || '').trim().toLowerCase();
-            if (!val) return new Set();
-            return new Set(val.split(/\s*,\s*/).filter(Boolean));
+            const set = new Set();
+            if (!filterContainer) return set;
+            filterContainer.querySelectorAll('input[type=checkbox]').forEach(cb => {
+                if (!cb.checked) set.add(cb.value.toLowerCase());
+            });
+            return set;
         }
 
         function applyTypeFilter(anns, filterSet) {
@@ -269,13 +275,16 @@
 
             const data = new URLSearchParams(new FormData(form));
             const debug = document.getElementById('debug').checked;
-            const tool = document.getElementById('tool').value;
-            const endpoint = tool === 'quickumls'
-                ? '/cgi-bin/quickumls.cgi'
-                : '/cgi-bin/metamaplite.cgi';
+            const engine = document.getElementById('engine').value;
+            let endpoint;
+            if (engine === 'ctakes') {
+                endpoint = '/cgi-bin/ctakes.cgi';
+            } else if (engine === 'quickumls') {
+                endpoint = '/cgi-bin/quickumls.cgi';
+            } else {
+                endpoint = '/cgi-bin/metamaplite.cgi';
+            }
             try {
-                const engine = document.getElementById('engine').value;
-                const endpoint = engine === 'ctakes' ? '/cgi-bin/ctakes.cgi' : '/cgi-bin/metamaplite.cgi';
                 const res = await fetch(endpoint + (debug ? '?debug=1' : ''), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -298,6 +307,7 @@
                             const json = JSON.parse(text.slice(idx));
                             lastAnnots = parseAnnotations(json);
                             lastText = document.getElementById('input').value;
+                            buildTypeFilter(lastAnnots);
                             updateDisplay();
                         } catch (_) {
                             /* ignore parse errors */
@@ -307,13 +317,14 @@
                     const json = await res.json();
                     lastAnnots = parseAnnotations(json);
                     lastText = document.getElementById('input').value;
+                    buildTypeFilter(lastAnnots);
                     updateDisplay();
                 }
             } catch (err) {
                 output.innerHTML = `<p style="color:red">Error: ${err.message}</p>`;
             }
         });
-        filterInput.addEventListener("input", updateDisplay);
+        filterContainer.addEventListener('change', updateDisplay);
 
         function createResultsTable(anns) {
             if (!anns || anns.length === 0) {
@@ -405,6 +416,24 @@
             return `hsl(${hash},70%,85%)`;
         }
 
+        function buildTypeFilter(anns) {
+            if (!filterContainer) return;
+            const types = new Set();
+            anns.forEach(a => (a.semanticTypes || []).forEach(st => types.add(st)));
+            filterContainer.innerHTML = '';
+            types.forEach(st => {
+                const label = document.createElement('label');
+                label.style.marginRight = '0.5em';
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.value = st;
+                cb.checked = true;
+                label.appendChild(cb);
+                label.append(' ' + (SEMTYPE_MAP[st] || st));
+                filterContainer.appendChild(label);
+            });
+        }
+
         function highlightText(text, anns, filterSet) {
             const spans = anns.filter(a => a.span).sort((a, b) => a.span.begin - b.span.begin);
             let result = '';
@@ -430,6 +459,7 @@
         function renderResults(json) {
             lastAnnots = parseAnnotations(json);
             lastText = document.getElementById('input').value;
+            buildTypeFilter(lastAnnots);
             updateDisplay();
         }
     </script>

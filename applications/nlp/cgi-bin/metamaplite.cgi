@@ -57,6 +57,7 @@ filter_abbrev() {
            -e '^[[:space:]]*longForm:' \
            -e '^[[:space:]]*longFormIndex:' \
            -e '^[[:space:]]*\[[^]]*\][[:space:]]' \
+           -e '^[[:space:]]*[Ww]arning[: ]' \
            -e '^Exception in thread'
 }
 
