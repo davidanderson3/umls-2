@@ -48,13 +48,18 @@ cmd=("$MM_SH" \
 
 filter_abbrev() {
     # Remove abbreviation debug lines that break JSON output
-    grep -v -e '^abbrvMap:' -e '^abbrInfo:' -e '^abbrev ' -e '^ shortForm:' \
-        -e '^  shortFormIndex:' -e '^ longForm:' -e '^  longFormIndex:'
+    grep -v -e '^[[:space:]]*abbrvMap:' \
+           -e '^[[:space:]]*abbrInfo:' \
+           -e '^[[:space:]]*abbrev ' \
+           -e '^[[:space:]]*shortForm:' \
+           -e '^[[:space:]]*shortFormIndex:' \
+           -e '^[[:space:]]*longForm:' \
+           -e '^[[:space:]]*longFormIndex:'
 }
 
 if [ "$DEBUG" = 1 ]; then
     echo "# cmd: ${cmd[*]}" >&2
     printf '%s\n' "$TEXT" | "${cmd[@]}" 2>&1 | filter_abbrev
 else
-    printf '%s\n' "$TEXT" | "${cmd[@]}" | filter_abbrev
+    printf '%s\n' "$TEXT" | "${cmd[@]}" 2>&1 | filter_abbrev
 fi
