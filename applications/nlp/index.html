@@ -48,7 +48,7 @@
             color: #fff;
             padding: 2px 4px;
             border-radius: 3px;
-            white-space: nowrap;
+            white-space: pre;
         }
 
         th,
@@ -443,7 +443,9 @@
                 if (begin < last) return; // skip overlapping
                 result += escapeHtml(text.slice(last, begin));
                 const filtered = (a.semanticTypes || []).filter(st => !filterSet.has(st.toLowerCase()));
-                const types = filtered.map(st => SEMTYPE_MAP[st] || st).join(', ');
+                const types = filtered
+                    .map(st => SEMTYPE_MAP[st] || st)
+                    .join(', ');
                 if (types) {
                     const color = colorForST(filtered[0].toLowerCase());
                     result += `<span class="highlight" data-type="${escapeHtml(types)}" style="background-color:${color}">${escapeHtml(text.slice(begin, end))}</span>`;
