@@ -8,7 +8,8 @@ const ensureSynonymAnalyzer = require('./elastic-index'); // ✅ Import index cr
 const path = require('path');
 
 const BATCH_SIZE = 500;
-const DATA_DIR = path.join(__dirname, '..', '..', 'Data');
+// RRF files live alongside load.js
+const DATA_DIR = __dirname;
 const MRCONSO = path.join(DATA_DIR, 'MRCONSO.RRF');
 const MRSTY = path.join(DATA_DIR, 'MRSTY.RRF');
 const MRDEF = path.join(DATA_DIR, 'MRDEF.RRF');
