@@ -43,6 +43,7 @@ MODELS="$BASE/metamaplite/data/models"
 cmd=("$MM_SH" \
       --indexdir="$INDEXDIR" \
       --modelsdir="$MODELS" \
+      --enable_scoring \
       --pipe \
       --outputformat=json)
 
