@@ -29,7 +29,7 @@
         }
 
         .highlight {
-            background-color: #ffffcc;
+            background-color: #ffffcc; /* fallback */
             font-weight: bold;
             position: relative;
             padding: 0 2px;
@@ -355,6 +355,14 @@
             return data.annotations || [];
         }
 
+        function colorForST(st) {
+            let hash = 0;
+            for (let i = 0; i < st.length; i++) {
+                hash = (hash * 31 + st.charCodeAt(i)) % 360;
+            }
+            return `hsl(${hash},70%,85%)`;
+        }
+
         function highlightText(text, anns, filterSet) {
             const spans = anns.filter(a => a.span).sort((a, b) => a.span.begin - b.span.begin);
             let result = '';
@@ -366,7 +374,8 @@
                 const filtered = (a.semanticTypes || []).filter(st => !filterSet.has(st.toLowerCase()));
                 const types = filtered.map(st => SEMTYPE_MAP[st] || st).join(', ');
                 if (types) {
-                    result += `<span class="highlight" data-type="${escapeHtml(types)}">${escapeHtml(text.slice(begin, end))}</span>`;
+                    const color = colorForST(filtered[0].toLowerCase());
+                    result += `<span class="highlight" data-type="${escapeHtml(types)}" style="background-color:${color}">${escapeHtml(text.slice(begin, end))}</span>`;
                 } else {
                     result += escapeHtml(text.slice(begin, end));
                 }
