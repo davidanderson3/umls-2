@@ -74,8 +74,6 @@
             <label for="input">Clinical Text:</label>
             <textarea id="input" name="text" placeholder="Enter your sentence…"></textarea>
             <label><input type="checkbox" id="debug" name="debug"> Debug</label>
-            <label for="filter-types">Ignore Semantic Types:</label>
-            <input type="text" id="filter-types" placeholder="e.g., dsyn, patf">
 
         <!-- Simple run without restriction parameters -->
 
@@ -86,12 +84,15 @@
     <div id="output">
         <!-- populated by JS -->
     </div>
+<label for="filter-types">Ignore Semantic Types:</label>
+<input type="text" id="filter-types" placeholder="e.g., dsyn, patf">
 
     <script>
         const form = document.getElementById('mm-form');
         const output = document.getElementById('output');
         const filterInput = document.getElementById('filter-types');
-
+        let lastAnnots = [];
+        let lastText = "";
         // Mapping from MetaMapLite semantic type abbreviations to
         // their human‑readable names. This is used purely for the
         // web interface so that the “Type(s)” column displays the full
@@ -240,14 +241,21 @@
             }));
         }
 
+        function updateDisplay() {
+            const filterSet = getFilterSet();
+            const anns = applyTypeFilter(lastAnnots, filterSet);
+            const highlighted = highlightText(lastText, anns, filterSet);
+            const table = createResultsTable(anns);
+            output.innerHTML = highlighted + table;
+        }
+
         form.addEventListener('submit', async e => {
             e.preventDefault();
             output.innerHTML = '<p>Processing…</p>';
 
-            // collect form data
             const data = new URLSearchParams(new FormData(form));
             const debug = document.getElementById('debug').checked;
-            
+
             try {
                 const res = await fetch('/cgi-bin/metamaplite.cgi' + (debug ? '?debug=1' : ''), {
                     method: 'POST',
@@ -266,22 +274,24 @@
                     if (idx !== -1) {
                         try {
                             const json = JSON.parse(text.slice(idx));
-                            const anns = applyTypeFilter(parseAnnotations(json), getFilterSet());
-                            const div = document.createElement('div');
-                            div.innerHTML = createResultsTable(anns);
-                            output.appendChild(div);
+                            lastAnnots = parseAnnotations(json);
+                            lastText = document.getElementById('input').value;
+                            updateDisplay();
                         } catch (_) {
                             /* ignore parse errors */
                         }
                     }
                 } else {
                     const json = await res.json();
-                    renderResults(json);
+                    lastAnnots = parseAnnotations(json);
+                    lastText = document.getElementById('input').value;
+                    updateDisplay();
                 }
             } catch (err) {
                 output.innerHTML = `<p style="color:red">Error: ${err.message}</p>`;
             }
         });
+        filterInput.addEventListener("input", updateDisplay);
 
         function createResultsTable(anns) {
             if (!anns || anns.length === 0) {
@@ -373,13 +383,9 @@
         }
 
         function renderResults(json) {
-            const raw = parseAnnotations(json);
-            const filterSet = getFilterSet();
-            const anns = applyTypeFilter(raw, filterSet);
-            const text = document.getElementById('input').value;
-            const highlighted = highlightText(text, anns, filterSet);
-            const table = createResultsTable(anns);
-            output.innerHTML = highlighted + table;
+            lastAnnots = parseAnnotations(json);
+            lastText = document.getElementById('input').value;
+            updateDisplay();
         }
     </script>
 </body>
