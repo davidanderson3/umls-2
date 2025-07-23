@@ -28,3 +28,27 @@ The cTAKES option expects an existing cTAKES installation.  Set the
 directory before starting the server.  The CGI script will attempt to
 run `runClinicalPipeline.sh` from this location and return its plain
 text output.
+
+If `runClinicalPipeline.sh` cannot be found under `CTAKES_HOME/bin`, the
+CGI script prints `Error: cTAKES not installed`.
+
+### Installing cTAKES
+
+1. Download a cTAKES release from <https://ctakes.apache.org> and
+   extract it somewhere on your system.
+2. Set the `CTAKES_HOME` environment variable to the extracted
+   directory:
+
+   ```bash
+   export CTAKES_HOME=/path/to/apache-ctakes-<version>
+   ```
+3. Start the demo server:
+
+   ```bash
+   ./serve_metamaplite.sh
+   ```
+4. Open <http://localhost:8000> in your browser, enter clinical text,
+   select **cTAKES** from the *NLP Engine* menu and click **Annotate**.
+
+Once `CTAKES_HOME` is set correctly and cTAKES is installed, the demo
+will call cTAKES instead of displaying the error message.
