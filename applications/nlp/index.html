@@ -29,7 +29,7 @@
         }
 
         .highlight {
-            background-color: #ffffcc;
+            background-color: #ffffcc; /* fallback */
             font-weight: bold;
             position: relative;
             padding: 0 2px;
@@ -65,15 +65,23 @@
         #output {
             margin-top: 1em;
         }
+
+        #output p {
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 
 <body>
     <h1>MetaMapLite Demo</h1>
         <form id="mm-form">
-            <label for="input">Clinical Text:</label>
-            <textarea id="input" name="text" placeholder="Enter your sentence…"></textarea>
-            <label><input type="checkbox" id="debug" name="debug"> Debug</label>
+            <label for="tool">NLP Tool:</label>
+            <select id="tool" name="tool">
+                <option value="metamaplite">MetaMapLite</option>
+                <option value="quickumls">QuickUMLS</option>
+            </select>
+            <label for="filter-types">Ignore Semantic Types:</label>
+            <input type="text" id="filter-types" placeholder="e.g., dsyn, patf">
 
         <!-- Simple run without restriction parameters -->
 
@@ -255,9 +263,12 @@
 
             const data = new URLSearchParams(new FormData(form));
             const debug = document.getElementById('debug').checked;
-
+            const tool = document.getElementById('tool').value;
+            const endpoint = tool === 'quickumls'
+                ? '/cgi-bin/quickumls.cgi'
+                : '/cgi-bin/metamaplite.cgi';
             try {
-                const res = await fetch('/cgi-bin/metamaplite.cgi' + (debug ? '?debug=1' : ''), {
+                const res = await fetch(endpoint + (debug ? '?debug=1' : ''), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: data.toString()
@@ -343,6 +354,20 @@
 
         function parseAnnotations(data) {
             if (Array.isArray(data)) {
+                if (data.length && 'start' in data[0] && 'end' in data[0]) {
+                    // QuickUMLS format
+                    return data.map(ent => ({
+                        trigger: ent.ngram || ent.term || '',
+                        cui: ent.cui || '',
+                        preferredName: ent.term || '',
+                        semanticTypes: ent.semtypes || [],
+                        score: ent.similarity,
+                        span: (ent.start != null && ent.end != null)
+                            ? { begin: ent.start, end: ent.end }
+                            : null
+                    }));
+                }
+                // MetaMapLite format
                 return data.map(ent => {
                     const ev = (ent.evlist && ent.evlist[0]) || {};
                     const ci = ev.conceptinfo || {};
@@ -361,6 +386,14 @@
             return data.annotations || [];
         }
 
+        function colorForST(st) {
+            let hash = 0;
+            for (let i = 0; i < st.length; i++) {
+                hash = (hash * 31 + st.charCodeAt(i)) % 360;
+            }
+            return `hsl(${hash},70%,85%)`;
+        }
+
         function highlightText(text, anns, filterSet) {
             const spans = anns.filter(a => a.span).sort((a, b) => a.span.begin - b.span.begin);
             let result = '';
@@ -372,7 +405,8 @@
                 const filtered = (a.semanticTypes || []).filter(st => !filterSet.has(st.toLowerCase()));
                 const types = filtered.map(st => SEMTYPE_MAP[st] || st).join(', ');
                 if (types) {
-                    result += `<span class="highlight" data-type="${escapeHtml(types)}">${escapeHtml(text.slice(begin, end))}</span>`;
+                    const color = colorForST(filtered[0].toLowerCase());
+                    result += `<span class="highlight" data-type="${escapeHtml(types)}" style="background-color:${color}">${escapeHtml(text.slice(begin, end))}</span>`;
                 } else {
                     result += escapeHtml(text.slice(begin, end));
                 }
