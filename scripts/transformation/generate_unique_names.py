@@ -30,7 +30,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Generate a JSON file of CUIs mapped to unique English names"
     )
-    parser.add_argument("mrconso", help="Path to MRCONSO.RRF")
+    parser.add_argument(
+        "mrconso",
+        nargs="?",
+        default="/data/MRCONSO.RRF",
+        help="Path to MRCONSO.RRF",
+    )
     parser.add_argument(
         "--output",
         default=Path("data/names/cui_unique_names.json"),
