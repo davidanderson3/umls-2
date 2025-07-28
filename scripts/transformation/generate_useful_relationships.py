@@ -12,9 +12,10 @@ def parse_mrconso(path: str) -> Tuple[Dict[str, str], Dict[str, str]]:
     aui_names: Dict[str, str] = {}
     cui_pref: Dict[str, str] = {}
     csv.field_size_limit(sys.maxsize)
+    print("Parsing MRCONSO.RRF...", flush=True)
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         reader = csv.reader(f, delimiter="|")
-        for row in reader:
+        for i, row in enumerate(reader, start=1):
             if row and row[-1] == "":
                 row = row[:-1]
             if len(row) < 15:
@@ -36,6 +37,9 @@ def parse_mrconso(path: str) -> Tuple[Dict[str, str], Dict[str, str]]:
                 and cui not in cui_pref
             ):
                 cui_pref[cui] = string
+            if i % 500000 == 0:
+                print(f"  processed {i} MRCONSO rows", flush=True)
+    print(f"Finished MRCONSO: {len(aui_names)} AUI names, {len(cui_pref)} CUI prefs", flush=True)
     return aui_names, cui_pref
 
 
@@ -45,9 +49,10 @@ def parse_mrrel(
     """Return human-readable relationship records from MRREL."""
     records: List[Dict[str, str]] = []
     csv.field_size_limit(sys.maxsize)
+    print("Parsing MRREL.RRF...", flush=True)
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         reader = csv.reader(f, delimiter="|")
-        for row in reader:
+        for i, row in enumerate(reader, start=1):
             if row and row[-1] == "":
                 row = row[:-1]
             if len(row) < 6:
@@ -72,6 +77,9 @@ def parse_mrrel(
                     "target_label": label2,
                 }
             )
+            if i % 500000 == 0:
+                print(f"  processed {i} MRREL rows", flush=True)
+    print(f"Finished MRREL: {len(records)} records", flush=True)
     return records
 
 
