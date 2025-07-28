@@ -2,6 +2,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Set
@@ -10,6 +11,7 @@ from typing import Dict, List, Set
 def parse_mrconso(path: str) -> Dict[str, str]:
     """Return a mapping of CUI -> preferred English string."""
     names: Dict[str, str] = {}
+    csv.field_size_limit(sys.maxsize)
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         reader = csv.reader(f, delimiter="|")
         for row in reader:
@@ -27,6 +29,7 @@ def parse_mrconso(path: str) -> Dict[str, str]:
 def parse_mrrel(path: str) -> Dict[str, Set[str]]:
     """Return mapping of parent CUI -> set of child CUIs."""
     edges: Dict[str, Set[str]] = defaultdict(set)
+    csv.field_size_limit(sys.maxsize)
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         reader = csv.reader(f, delimiter="|")
         for row in reader:

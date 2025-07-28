@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Set
@@ -11,6 +12,7 @@ from typing import Dict, List, Set
 def parse_mrconso(path: str) -> Dict[str, List[str]]:
     """Return mapping of CUI -> sorted list of unique English names."""
     names: Dict[str, Set[str]] = defaultdict(set)
+    csv.field_size_limit(sys.maxsize)
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         reader = csv.reader(f, delimiter="|")
         for row in reader:

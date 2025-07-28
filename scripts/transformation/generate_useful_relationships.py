@@ -2,6 +2,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -10,6 +11,7 @@ def parse_mrconso(path: str) -> Tuple[Dict[str, str], Dict[str, str]]:
     """Return mappings of AUI -> label and CUI -> preferred label."""
     aui_names: Dict[str, str] = {}
     cui_pref: Dict[str, str] = {}
+    csv.field_size_limit(sys.maxsize)
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         reader = csv.reader(f, delimiter="|")
         for row in reader:
@@ -42,6 +44,7 @@ def parse_mrrel(
 ) -> List[Dict[str, str]]:
     """Return human-readable relationship records from MRREL."""
     records: List[Dict[str, str]] = []
+    csv.field_size_limit(sys.maxsize)
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         reader = csv.reader(f, delimiter="|")
         for row in reader:
