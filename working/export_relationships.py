@@ -3,7 +3,7 @@ import argparse
 import csv
 import json
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List, Tuple
 
 
 def parse_mrconso(path: str) -> Dict[str, str]:
@@ -24,9 +24,9 @@ def parse_mrconso(path: str) -> Dict[str, str]:
     return names
 
 
-def parse_mrrel(path: str, names: Dict[str, str]) -> List[Dict[str, str]]:
-    """Return list of relationship dictionaries from MRREL."""
-    relationships: List[Dict[str, str]] = []
+def parse_mrrel(path: str, names: Dict[str, str]) -> List[Dict[str, Any]]:
+    """Return aggregated relationships grouped by unique CUI pairs."""
+    pairs: Dict[Tuple[str, str], Dict[str, Any]] = {}
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         reader = csv.reader(f, delimiter="|")
         for row in reader:
@@ -35,20 +35,24 @@ def parse_mrrel(path: str, names: Dict[str, str]) -> List[Dict[str, str]]:
             if len(row) < 11:
                 continue
             cui1, rel, cui2 = row[0], row[3], row[4]
+            if cui1 == cui2:
+                # Skip self-referential relationships
+                continue
             rela = row[7] if len(row) > 7 else ""
             sab = row[10] if len(row) > 10 else ""
-            relationships.append(
-                {
+            key = (cui1, cui2)
+            if key not in pairs:
+                pairs[key] = {
                     "CUI1": cui1,
                     "CUI1_name": names.get(cui1, ""),
-                    "REL": rel,
-                    "RELA": rela,
-                    "SAB": sab,
                     "CUI2": cui2,
                     "CUI2_name": names.get(cui2, ""),
+                    "relationships": [],
                 }
-            )
-    return relationships
+            rel_entry = {"REL": rel, "RELA": rela, "SAB": sab}
+            if rel_entry not in pairs[key]["relationships"]:
+                pairs[key]["relationships"].append(rel_entry)
+    return list(pairs.values())
 
 
 def main() -> None:
